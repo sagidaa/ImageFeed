@@ -13,6 +13,8 @@ final class ImagesListViewController: UIViewController {
     
     private let photosName: [String] = Array(0..<20).map{"\($0)"}
     
+    private let test = 0 //- для исправления истории веток
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
