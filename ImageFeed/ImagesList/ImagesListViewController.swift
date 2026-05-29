@@ -1,3 +1,10 @@
+//
+//  ImagesListViewController.swift
+//  ImageFeed
+//
+//  Created by Sagida on 15.05.2026.
+//
+
 import UIKit
 
 final class ImagesListViewController: UIViewController {
@@ -12,6 +19,7 @@ final class ImagesListViewController: UIViewController {
     }()
     
     private let photosName: [String] = Array(0..<20).map{"\($0)"}
+    private let today = Date()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -23,7 +31,7 @@ final class ImagesListViewController: UIViewController {
 
 extension ImagesListViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return photosName.count
+        photosName.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -46,10 +54,10 @@ extension ImagesListViewController {
         }
         
         cell.cellImage.image = image
-        cell.dateLabel.text = dateFormatter.string(from: Date())
+        cell.dateLabel.text = dateFormatter.string(from: today)
         
         let isLiked = indexPath.row % 2 == 0
-        let likeImage = isLiked ? UIImage(named: "like_button_on") : UIImage(named: "like_button_off")
+        let likeImage = isLiked ? UIImage(resource: .likeButtonOn) : UIImage(resource: .likeButtonOff)
         cell.likeButton.setImage(likeImage, for: .normal)
         
     }
