@@ -8,8 +8,12 @@
 import UIKit
 
 final class ImagesListViewController: UIViewController {
-
+    
+    // MARK: - IB Outlets
+    
     @IBOutlet private var tableView: UITableView!
+    
+    // MARK: - Properties
     
     private lazy var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -22,6 +26,8 @@ final class ImagesListViewController: UIViewController {
     private let today = Date()
     private let showSingleImageSegueIdentifier = "ShowSingleImage"
     
+    // MARK: - Lifecycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -29,6 +35,8 @@ final class ImagesListViewController: UIViewController {
     }
     
 }
+
+// MARK: - UITableViewDataSource
 
 extension ImagesListViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -48,6 +56,8 @@ extension ImagesListViewController: UITableViewDataSource {
     
 }
 
+// MARK: - Cell Configuration
+
 extension ImagesListViewController {
     func configCell(for cell: ImagesListCell, with indexPath: IndexPath) {
         guard let image = UIImage(named: photosName[indexPath.row]) else {
@@ -62,7 +72,11 @@ extension ImagesListViewController {
         cell.likeButton.setImage(likeImage, for: .normal)
         
     }
-    
+}
+
+// MARK: - Navigation
+
+extension ImagesListViewController {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == showSingleImageSegueIdentifier {
             guard
@@ -80,6 +94,8 @@ extension ImagesListViewController {
         }
     }
 }
+
+// MARK: - UITableViewDelegate
 
 extension ImagesListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
