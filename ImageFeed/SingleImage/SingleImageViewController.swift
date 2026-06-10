@@ -46,21 +46,22 @@ final class SingleImageViewController: UIViewController {
     // MARK: - Image Layout
     
     private func rescaleAndCenterImageInScrollView(image: UIImage) {
-        let minZoomScale = scrollView.minimumZoomScale
-        let maxZoomScale = scrollView.maximumZoomScale
         view.layoutIfNeeded()
-        
-        let visibleRectSize = scrollView.bounds.size
+
+        let boundsSize = scrollView.bounds.size
         let imageSize = image.size
-        let hScale = visibleRectSize.width / imageSize.width
-        let vScale = visibleRectSize.height / imageSize.height
-        let scale = min(maxZoomScale, max(minZoomScale, min(hScale, vScale)))
+
+        let hScale = boundsSize.width / imageSize.width
+        let vScale = boundsSize.height / imageSize.height
         
-        scrollView.setZoomScale(scale, animated: false)
-        scrollView.layoutIfNeeded()
-        
+        scrollView.zoomScale = max(hScale, vScale)
+
         centerImage()
-        
+
+        let offsetX = max(0, (scrollView.contentSize.width - boundsSize.width) / 2)
+        let offsetY = max(0, (scrollView.contentSize.height - boundsSize.height) / 2)
+
+        scrollView.contentOffset = CGPoint(x: offsetX, y: offsetY)
     }
     
     private func centerImage() {
@@ -77,7 +78,6 @@ final class SingleImageViewController: UIViewController {
             right: horizontalInset
         )
     }
-
     
     // MARK: - Actions
 
@@ -93,7 +93,6 @@ final class SingleImageViewController: UIViewController {
         )
         present(vc, animated: true, completion: nil)
     }
-    
 }
 
 // MARK: - UIScrollViewDelegate
