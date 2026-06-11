@@ -8,20 +8,25 @@
 import UIKit
 
 final class SingleImageViewController: UIViewController {
-
+    
     // MARK: - IB Outlets
-
+    
     @IBOutlet private var scrollView: UIScrollView!
-    @IBOutlet var imageView: UIImageView!
+    @IBOutlet private var imageView: UIImageView!
+    
+    // MARK: - Constants
+    
+    private enum Constants {
+        static let minimumZoomScale: CGFloat = 0.1
+        static let maximumZoomScale: CGFloat = 1.25
+    }
     
     // MARK: - Properties
     
     var image: UIImage? {
         didSet {
             guard isViewLoaded, let image else { return }
-            imageView.image = image
-            imageView.frame.size = image.size
-            rescaleAndCenterImageInScrollView(image: image)
+            setup(with: image)
         }
     }
     
@@ -32,45 +37,52 @@ final class SingleImageViewController: UIViewController {
         
         scrollView.delegate = self
         
-        scrollView.minimumZoomScale = 0.1
-        scrollView.maximumZoomScale = 1.25
-        
-        imageView.image = image
+        scrollView.minimumZoomScale = Constants.minimumZoomScale
+        scrollView.maximumZoomScale = Constants.maximumZoomScale
         
         if let image  {
-            imageView.frame.size = image.size
-            rescaleAndCenterImageInScrollView(image: image)
+            setup(with: image)
         }
+    }
+    
+    // MARK: - Setup
+    
+    func setup(with image: UIImage) {
+        imageView.image = image
+        imageView.frame.size = image.size
+        rescaleAndCenterImageInScrollView(image: image)
     }
     
     // MARK: - Image Layout
     
     private func rescaleAndCenterImageInScrollView(image: UIImage) {
         view.layoutIfNeeded()
-
+        
         let boundsSize = scrollView.bounds.size
         let imageSize = image.size
-
+        
+        guard imageSize.width > 0, imageSize.height > 0 else { return }
+        
         let hScale = boundsSize.width / imageSize.width
         let vScale = boundsSize.height / imageSize.height
         
         scrollView.zoomScale = max(hScale, vScale)
-
+        
         centerImage()
-
+        
         let offsetX = max(0, (scrollView.contentSize.width - boundsSize.width) / 2)
         let offsetY = max(0, (scrollView.contentSize.height - boundsSize.height) / 2)
-
+        
         scrollView.contentOffset = CGPoint(x: offsetX, y: offsetY)
     }
     
     private func centerImage() {
         let boundsSize = scrollView.bounds.size
         let contentSize = scrollView.contentSize
-
+        
         let horizontalInset = max(0, (boundsSize.width - contentSize.width) / 2)
         let verticalInset = max(0, (boundsSize.height - contentSize.height) / 2)
-
+        
         scrollView.contentInset = UIEdgeInsets(
             top: verticalInset,
             left: horizontalInset,
@@ -80,7 +92,7 @@ final class SingleImageViewController: UIViewController {
     }
     
     // MARK: - Actions
-
+    
     @IBAction private func didTapBackButton() {
         dismiss(animated: true, completion: nil)
     }
