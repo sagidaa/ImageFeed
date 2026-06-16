@@ -283,29 +283,10 @@
                     <view key="view" contentMode="scaleToFill" id="gJW-Su-yr0">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <wkWebView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="9Il-6k-fge">
-                                <rect key="frame" x="0.0" y="150" width="414" height="746"/>
-                                <color key="backgroundColor" name="YP White"/>
-                                <wkWebViewConfiguration key="configuration">
-                                    <audiovisualMediaTypes key="mediaTypesRequiringUserActionForPlayback" none="YES"/>
-                                    <wkPreferences key="preferences"/>
-                                </wkWebViewConfiguration>
-                            </wkWebView>
-                        </subviews>
                         <viewLayoutGuide key="safeArea" id="SGp-Es-Ckg"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                        <constraints>
-                            <constraint firstItem="9Il-6k-fge" firstAttribute="top" secondItem="SGp-Es-Ckg" secondAttribute="top" id="32m-IO-6Zp"/>
-                            <constraint firstItem="9Il-6k-fge" firstAttribute="leading" secondItem="gJW-Su-yr0" secondAttribute="leading" id="LFY-YW-wPS"/>
-                            <constraint firstAttribute="bottom" secondItem="9Il-6k-fge" secondAttribute="bottom" id="hyY-BB-Qo3"/>
-                            <constraint firstAttribute="trailing" secondItem="9Il-6k-fge" secondAttribute="trailing" id="nSH-1h-3PT"/>
-                        </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="SDA-xF-RWm"/>
-                    <connections>
-                        <outlet property="webView" destination="9Il-6k-fge" id="xOc-2U-H0m"/>
-                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="lfM-2a-CT1" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
