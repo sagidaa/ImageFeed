@@ -10,11 +10,12 @@ import WebKit
 
 final class WebViewViewController: UIViewController {
     
-    enum WebViewConstants {
-        static let unsplashAuthorizeURLString = "https://unsplash.com/oauth/authorize"
-    }
-        
+    // MARK: - Properties
+    
+    weak var delegate: WebViewViewControllerDelegate?
     private let webView = WKWebView()
+    
+    // MARK: - Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -24,6 +25,8 @@ final class WebViewViewController: UIViewController {
         setupWebView()
         loadAuthView()
     }
+    
+    // MARK: - Private Methods
     
     private func setupWebView() {
         webView.translatesAutoresizingMaskIntoConstraints = false
@@ -75,17 +78,19 @@ final class WebViewViewController: UIViewController {
     }
 }
 
+// MARK: - WKNavigationDelegate
+
 extension WebViewViewController: WKNavigationDelegate {
     func webView(
         _ webView: WKWebView,
         decidePolicyFor navigationAction: WKNavigationAction,
         decisionHandler: @escaping (WKNavigationActionPolicy) -> Void
     ) {
-          if let code = code(from: navigationAction) {
-              // TODO: process code
-              decisionHandler(.cancel)
-          } else {
-              decisionHandler(.allow)
-          }
-      }
+        if let code = code(from: navigationAction) {
+            delegate?.webViewViewController(self, didAuthenticateWithCode: code)
+            decisionHandler(.cancel)
+        } else {
+            decisionHandler(.allow)
+        }
+    }
 }
