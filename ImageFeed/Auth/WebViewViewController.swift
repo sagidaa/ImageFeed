@@ -10,6 +10,10 @@ import WebKit
 
 final class WebViewViewController: UIViewController {
     
+    // MARK: - IBOutlets
+    
+    @IBOutlet private var progressView: UIProgressView!
+    
     // MARK: - Properties
     
     weak var delegate: WebViewViewControllerDelegate?
