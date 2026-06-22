@@ -284,7 +284,10 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <progressView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" progress="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="qJX-VG-CIX">
-                                <rect key="frame" x="0.0" y="150" width="414" height="4"/>
+                                <rect key="frame" x="0.0" y="150" width="414" height="2"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="2" id="2Um-pz-3VA"/>
+                                </constraints>
                                 <color key="progressTintColor" name="YP Black"/>
                             </progressView>
                         </subviews>
