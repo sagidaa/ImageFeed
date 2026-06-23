@@ -9,15 +9,12 @@ import UIKit
 import WebKit
 
 final class WebViewViewController: UIViewController {
-    
-    // MARK: - IBOutlets
-    
-    @IBOutlet private var progressView: UIProgressView!
-    
+       
     // MARK: - Properties
     
     weak var delegate: WebViewViewControllerDelegate?
     private let webView = WKWebView()
+    private let progressView = UIProgressView()
     
     // MARK: - Lifecycle
     
@@ -26,7 +23,7 @@ final class WebViewViewController: UIViewController {
         
         webView.navigationDelegate = self
         
-        setupWebView()
+        setupViews()
         loadAuthView()
     }
     
@@ -73,16 +70,25 @@ final class WebViewViewController: UIViewController {
         progressView.isHidden = fabs(webView.estimatedProgress - 1.0) <= 0.0001
     }
     
-    private func setupWebView() {
+    private func setupViews() {
         webView.translatesAutoresizingMaskIntoConstraints = false
         webView.backgroundColor = .ypWhite
+        
+        progressView.translatesAutoresizingMaskIntoConstraints = false
+        progressView.progressTintColor = .ypBlack
+        
         view.addSubview(webView)
+        view.addSubview(progressView)
         
         NSLayoutConstraint.activate([
             webView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             webView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             webView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            webView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            webView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            
+            progressView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            progressView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            progressView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
     }
     

@@ -282,27 +282,10 @@
                     <view key="view" contentMode="scaleToFill" id="gJW-Su-yr0">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <progressView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" progress="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="qJX-VG-CIX">
-                                <rect key="frame" x="0.0" y="150" width="414" height="2"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="2" id="2Um-pz-3VA"/>
-                                </constraints>
-                                <color key="progressTintColor" name="YP Black"/>
-                            </progressView>
-                        </subviews>
                         <viewLayoutGuide key="safeArea" id="SGp-Es-Ckg"/>
                         <color key="backgroundColor" name="YP White"/>
-                        <constraints>
-                            <constraint firstItem="qJX-VG-CIX" firstAttribute="trailing" secondItem="SGp-Es-Ckg" secondAttribute="trailing" id="207-ar-yfO"/>
-                            <constraint firstItem="qJX-VG-CIX" firstAttribute="top" secondItem="SGp-Es-Ckg" secondAttribute="top" id="6Tl-IT-mnl"/>
-                            <constraint firstItem="qJX-VG-CIX" firstAttribute="leading" secondItem="SGp-Es-Ckg" secondAttribute="leading" id="D5H-KP-LxI"/>
-                        </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="SDA-xF-RWm"/>
-                    <connections>
-                        <outlet property="progressView" destination="qJX-VG-CIX" id="C9I-tT-h9c"/>
-                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="lfM-2a-CT1" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
