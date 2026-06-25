@@ -7,9 +7,6 @@
 
 import UIKit
 
-private enum AuthError: Error {
-    case invalidRequest
-}
 
 final class OAuth2Service {
     static let shared = OAuth2Service()
@@ -41,29 +38,24 @@ final class OAuth2Service {
 
     func fetchOAuthToken(_ code: String, completion: @escaping (Result<String, Error>) -> Void) {
         guard let request = makeOAuthTokenRequest(code: code) else {
-            completion(.failure(AuthError.invalidRequest))
+            completion(.failure(NetworkError.invalidRequest))
             return
         }
         
-        let task = URLSession.shared.dataTask(with: request) { data, response, error in
-            if let error {
+        let task = URLSession.shared.data(for: request) { result in
+            switch result {
+            case .success(let data):
+                do {
+                    let responseBody = try JSONDecoder().decode(OAuthTokenResponseBody.self, from: data)
+                    completion(.success(responseBody.accessToken))
+                } catch {
+                    completion(.failure(NetworkError.decodingError(error)))
+                }
+            case .failure(let error):
                 completion(.failure(error))
-                return
             }
-            
-            guard let data else {
-                completion(.failure(AuthError.invalidRequest))
-                return
-            }
-            
-//            do {
-//                //decode
-//            } catch {
-//                
-//            }
         }
         
         task.resume()
-     
     }
 }
