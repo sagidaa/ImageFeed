@@ -12,6 +12,8 @@ final class OAuth2Service {
     static let shared = OAuth2Service()
     private init() { }
     
+    private let tokenStorage = OAuth2TokenStorage()
+    
     private func makeOAuthTokenRequest(code: String) -> URLRequest? {
         guard var urlComponents = URLComponents(string: WebViewConstants.unsplashOAuthTokenURLString) else {
             print("Error: failed to create URLComponents from string")
@@ -47,10 +49,11 @@ final class OAuth2Service {
             case .success(let data):
                 do {
                     let responseBody = try JSONDecoder().decode(OAuthTokenResponseBody.self, from: data)
+                    self.tokenStorage.token = responseBody.accessToken
                     completion(.success(responseBody.accessToken))
                 } catch {
-                    completion(.failure(NetworkError.decodingError(error)))
                     print("Decoding error: \(error)")
+                    completion(.failure(NetworkError.decodingError(error)))
                 }
             case .failure(let error):
                 completion(.failure(error))
