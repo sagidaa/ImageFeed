@@ -34,11 +34,14 @@ extension URLSession {
                 if 200..<300 ~= statusCode {
                     fulfillCompletionOnTheMainThread(.success(data))
                 } else {
+                    print(String(data: data, encoding: .utf8) ?? "Could not convert data to string")
                     fulfillCompletionOnTheMainThread(.failure(NetworkError.httpStatusCode(statusCode)))
                 }
             } else if let error = error {
+                print("URL Request error: \(error)")
                 fulfillCompletionOnTheMainThread(.failure(NetworkError.urlRequestError(error)))
             } else {
+                print(NetworkError.urlSessionError)
                 fulfillCompletionOnTheMainThread(.failure(NetworkError.urlSessionError))
             }
         })

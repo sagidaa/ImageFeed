@@ -50,6 +50,7 @@ final class OAuth2Service {
                     completion(.success(responseBody.accessToken))
                 } catch {
                     completion(.failure(NetworkError.decodingError(error)))
+                    print("Decoding error: \(error)")
                 }
             case .failure(let error):
                 completion(.failure(error))
