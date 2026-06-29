@@ -31,7 +31,27 @@ final class SplashViewController: UIViewController {
         setNeedsStatusBarAppearanceUpdate()
     }
     
-    // MARK: - Private Properties
+    // MARK: - Navigation
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+
+        if segue.identifier == showAuthenticationScreenSegueIdentifier {
+
+            guard
+                let navigationController = segue.destination as? UINavigationController,
+                let viewController = navigationController.viewControllers.first as? AuthViewController
+            else {
+                print("Failed to prepare for \(showAuthenticationScreenSegueIdentifier)")
+                return
+            }
+
+            viewController.delegate = self
+        } else {
+            super.prepare(for: segue, sender: sender)
+        }
+    }
+    
+    // MARK: - Private Methods
     
     private func switchToTabBarController() {
         guard let window = UIApplication.shared.connectedScenes
@@ -45,26 +65,6 @@ final class SplashViewController: UIViewController {
         let tabBarController = UIStoryboard(name: "Main", bundle: .main)
             .instantiateViewController(withIdentifier: "TabBarViewController")
         window.rootViewController = tabBarController
-    }
-}
-
-extension SplashViewController {
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-
-        if segue.identifier == showAuthenticationScreenSegueIdentifier {
-
-            guard
-                let navigationController = segue.destination as? UINavigationController,
-                let viewController = navigationController.viewControllers.first as? AuthViewController
-            else {
-                assertionFailure("Failed to prepare for \(showAuthenticationScreenSegueIdentifier)")
-                return
-            }
-
-            viewController.delegate = self
-        } else {
-            super.prepare(for: segue, sender: sender)
-        }
     }
 }
 

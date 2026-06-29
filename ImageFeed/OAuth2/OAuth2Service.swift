@@ -5,14 +5,14 @@
 //  Created by Sagida on 22.06.2026.
 //
 
-import UIKit
+import Foundation
 
 
 final class OAuth2Service {
     static let shared = OAuth2Service()
     private init() { }
     
-    private let tokenStorage = OAuth2TokenStorage()
+    private let storage = OAuth2TokenStorage()
     
     private func makeOAuthTokenRequest(code: String) -> URLRequest? {
         guard var urlComponents = URLComponents(string: WebViewConstants.unsplashOAuthTokenURLString) else {
@@ -44,12 +44,14 @@ final class OAuth2Service {
             return
         }
         
-        let task = URLSession.shared.data(for: request) { result in
+        let task = URLSession.shared.data(for: request) { [weak self] result in
+            guard let self else { return }
+            
             switch result {
             case .success(let data):
                 do {
                     let responseBody = try JSONDecoder().decode(OAuthTokenResponseBody.self, from: data)
-                    self.tokenStorage.token = responseBody.accessToken
+                    self.storage.token = responseBody.accessToken
                     completion(.success(responseBody.accessToken))
                 } catch {
                     print("Decoding error: \(error)")
