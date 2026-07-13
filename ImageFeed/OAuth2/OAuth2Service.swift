@@ -50,7 +50,10 @@ final class OAuth2Service {
             switch result {
             case .success(let data):
                 do {
-                    let responseBody = try JSONDecoder().decode(OAuthTokenResponseBody.self, from: data)
+                    let decoder = JSONDecoder()
+                    decoder.keyDecodingStrategy = .convertFromSnakeCase
+                    
+                    let responseBody = try decoder.decode(OAuthTokenResponseBody.self, from: data)
                     self.storage.token = responseBody.accessToken
                     completion(.success(responseBody.accessToken))
                 } catch {
