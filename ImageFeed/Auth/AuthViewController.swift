@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import ProgressHUD
 
 final class AuthViewController: UIViewController {
     
@@ -55,8 +56,11 @@ final class AuthViewController: UIViewController {
 extension AuthViewController: WebViewViewControllerDelegate {
     func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String) {
         vc.dismiss(animated: true)
+        ProgressHUD.animate()
         
         oauth2Service.fetchAuthToken(code) { [weak self] result in
+            ProgressHUD.dismiss()
+
             guard let self else { return }
             
             switch result {
@@ -65,6 +69,7 @@ extension AuthViewController: WebViewViewControllerDelegate {
                 
             case .failure(let error):
                 print("OAuth error: \(error)")
+                break
             }
         }
     }
