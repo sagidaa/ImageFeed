@@ -14,6 +14,60 @@ final class OAuth2Service {
     
     private let storage = OAuth2TokenStorage()
     
+    private let urlSession = URLSession.shared
+    private var task: URLSessionTask?
+    private var lastCode: String?
+    
+    func fetchAuthToken(_ code: String, completion: @escaping (Result<String, Error>) -> Void) {
+        assert(Thread.isMainThread)
+        
+        guard lastCode != code else {
+            completion(.failure(NetworkError.invalidRequest))
+            return
+        }
+        
+        task?.cancel()
+        lastCode = code
+        
+        guard let request = makeOAuthTokenRequest(code: code) else {
+            task = nil
+            lastCode = nil
+            completion(.failure(NetworkError.invalidRequest))
+            return
+        }
+        
+        task = urlSession.data(for: request) { [weak self] result in
+            guard let self else {
+                completion(.failure(NetworkError.invalidRequest))
+                return
+            }
+            
+            switch result {
+            case .success(let data):
+                do {
+                    let decoder = JSONDecoder()
+                    decoder.keyDecodingStrategy = .convertFromSnakeCase
+                    
+                    let responseBody = try decoder.decode(OAuthTokenResponseBody.self, from: data)
+                    self.storage.token = responseBody.accessToken
+                    completion(.success(responseBody.accessToken))
+                } catch {
+                    print("Decoding error: \(error)")
+                    completion(.failure(NetworkError.decodingError(error)))
+                }
+            case .failure(let error):
+                completion(.failure(error))
+            }
+            
+            if self.lastCode == code {
+                self.task = nil
+                self.lastCode = nil
+            }
+        }
+        
+        task?.resume()
+    }
+    
     private func makeOAuthTokenRequest(code: String) -> URLRequest? {
         guard var urlComponents = URLComponents(string: WebViewConstants.unsplashOAuthTokenURLString) else {
             print("Error: failed to create URLComponents from string")
@@ -36,35 +90,5 @@ final class OAuth2Service {
         var request = URLRequest(url: authTokenUrl)
         request.httpMethod = "POST"
         return request
-    }
-
-    func fetchAuthToken(_ code: String, completion: @escaping (Result<String, Error>) -> Void) {
-        guard let request = makeOAuthTokenRequest(code: code) else {
-            completion(.failure(NetworkError.invalidRequest))
-            return
-        }
-        
-        let task = URLSession.shared.data(for: request) { [weak self] result in
-            guard let self else { return }
-            
-            switch result {
-            case .success(let data):
-                do {
-                    let decoder = JSONDecoder()
-                    decoder.keyDecodingStrategy = .convertFromSnakeCase
-                    
-                    let responseBody = try decoder.decode(OAuthTokenResponseBody.self, from: data)
-                    self.storage.token = responseBody.accessToken
-                    completion(.success(responseBody.accessToken))
-                } catch {
-                    print("Decoding error: \(error)")
-                    completion(.failure(NetworkError.decodingError(error)))
-                }
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }
-        
-        task.resume()
     }
 }
