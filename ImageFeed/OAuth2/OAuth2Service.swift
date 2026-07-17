@@ -69,7 +69,7 @@ final class OAuth2Service {
     }
     
     private func makeOAuthTokenRequest(code: String) -> URLRequest? {
-        guard var urlComponents = URLComponents(string: WebViewConstants.unsplashOAuthTokenURLString) else {
+        guard var urlComponents = URLComponents(string: APIConstants.unsplashOAuthTokenURLString) else {
             print("Error: failed to create URLComponents from string")
             return nil
         }

@@ -93,7 +93,7 @@ final class WebViewViewController: UIViewController {
     }
     
     private func loadAuthView() {
-        guard var urlComponents = URLComponents(string: WebViewConstants.unsplashAuthorizeURLString) else {
+        guard var urlComponents = URLComponents(string: APIConstants.unsplashAuthorizeURLString) else {
             print("Error: failed to create URLComponents from string")
             return
         }
