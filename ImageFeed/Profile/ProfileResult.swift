@@ -13,10 +13,3 @@ struct ProfileResult: Codable {
     let lastName: String?
     let bio: String?
 }
-
-struct Profile {
-    let username: String
-    let name: String
-    let loginName: String
-    let bio: String?
-}
