@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="VSG-NQ-voY">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="5vM-wb-e5o">
     <device id="retina6_1" orientation="portrait" appearance="dark"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24504"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
-        <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -185,18 +184,18 @@
             <objects>
                 <viewController id="HbI-Px-1UL" userLabel="Auth" customClass="AuthViewController" customModule="ImageFeed" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="MMn-j7-r6i">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="848"/>
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="authScreenLogo" translatesAutoresizingMaskIntoConstraints="NO" id="UjT-du-zDw" userLabel="Auth Logo">
-                                <rect key="frame" x="177" y="394" width="60" height="60"/>
+                                <rect key="frame" x="177" y="418" width="60" height="60"/>
                                 <constraints>
                                     <constraint firstAttribute="width" secondItem="UjT-du-zDw" secondAttribute="height" multiplier="1:1" id="LLF-5f-wBH"/>
                                     <constraint firstAttribute="width" constant="60" id="oNM-z7-ArY"/>
                                 </constraints>
                             </imageView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="26V-3l-qog" userLabel="Login Button">
-                                <rect key="frame" x="16" y="710" width="382" height="48"/>
+                                <rect key="frame" x="16" y="724" width="382" height="48"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="48" id="ngi-jY-qoF"/>
                                 </constraints>
@@ -281,7 +280,7 @@
             <objects>
                 <viewController id="lFg-Og-jlc" userLabel="WebView" customClass="WebViewViewController" customModule="ImageFeed" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="gJW-Su-yr0">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="848"/>
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <viewLayoutGuide key="safeArea" id="SGp-Es-Ckg"/>
                         <color key="backgroundColor" name="YP White"/>
@@ -300,10 +299,10 @@
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <viewLayoutGuide key="safeArea" id="6Ro-bI-nzu"/>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <color key="backgroundColor" name="YP Black"/>
                     </view>
                     <connections>
-                        <segue destination="nOc-8I-xHo" kind="show" identifier="showAuthenticationScreen" id="hil-xc-2uG"/>
+                        <segue destination="nOc-8I-xHo" kind="presentation" identifier="showAuthenticationScreen" modalPresentationStyle="fullScreen" id="hil-xc-2uG"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="j11-ib-pNK" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -317,7 +316,7 @@
                     <toolbarItems/>
                     <navigationItem key="navigationItem" id="GMd-BV-PTx"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="chT-Z3-bE6">
-                        <rect key="frame" x="0.0" y="20" width="414" height="54"/>
+                        <rect key="frame" x="0.0" y="48" width="414" height="54"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <nil name="viewControllers"/>
@@ -345,8 +344,5 @@
         <namedColor name="YP White">
             <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
-        <systemColor name="systemBackgroundColor">
-            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-        </systemColor>
     </resources>
 </document>
