@@ -8,8 +8,12 @@
 import Foundation
 
 final class ProfileService {
+    static let shared = ProfileService()
+    private init() {}
+    
     private let urlSession = URLSession.shared
     private var task: URLSessionTask?
+    private(set) var profile: Profile?
     
     func fetchProfile(_ token: String, completion: @escaping (Result<Profile, Error>) -> Void) {
         assert(Thread.isMainThread)
@@ -36,6 +40,7 @@ final class ProfileService {
                     
                     let profileResult = try decoder.decode(ProfileResult.self, from: data)
                     let profile = self.makeProfile(from: profileResult)
+                    self.profile = profile
                     
                     completion(.success(profile))
                 } catch {

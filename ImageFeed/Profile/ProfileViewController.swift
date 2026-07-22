@@ -30,8 +30,7 @@ final class ProfileViewController: UIViewController {
     private let loginNameLabel = UILabel()
     private let descriptionLabel = UILabel()
     
-    private let profileService = ProfileService()
-    private let tokenStorage = OAuth2TokenStorage()
+    private let profileService = ProfileService.shared
     
     // MARK: - Lifecycle
     
@@ -40,28 +39,15 @@ final class ProfileViewController: UIViewController {
         
         setupViews()
         setupConstraints()
-        fetchProfileDetails()
-    }
-    
-    // MARK: - Private Methods
-    
-    private func fetchProfileDetails() {
-        guard let token = tokenStorage.token else {
-            print("Profile error: token is missing")
+        
+        guard let profile = profileService.profile else {
             return
         }
         
-        profileService.fetchProfile(token) { [weak self] result in
-            guard let self else { return }
-        
-            switch result {
-            case .success(let profile):
-                self.updateProfileDetails(with: profile)
-            case .failure(let error):
-                print("Profile error: \(error)")
-            }
-        }
+        updateProfileDetails(with: profile)
     }
+    
+    // MARK: - Private Methods
     
     private func updateProfileDetails(with profile: Profile) {
         nameLabel.text = profile.name.isEmpty

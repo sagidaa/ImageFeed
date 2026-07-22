@@ -1,5 +1,5 @@
 //
-//  URLSession+data.swift.swift
+//  URLSession+data.swift
 //  ImageFeed
 //
 //  Created by Sagida on 24.06.2026.
