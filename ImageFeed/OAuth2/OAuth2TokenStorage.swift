@@ -8,6 +8,10 @@
 import Foundation
 
 final class OAuth2TokenStorage {
+    
+    static let shared = OAuth2TokenStorage()
+    private init() {}
+    
     private let storage : UserDefaults = .standard
     
     private enum Keys: String {
