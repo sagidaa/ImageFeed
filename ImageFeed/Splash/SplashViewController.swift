@@ -12,6 +12,7 @@ final class SplashViewController: UIViewController {
     // MARK: - Properties
     
     private let profileService = ProfileService.shared
+    private let profileImageService = ProfileImageService.shared
     private let storage = OAuth2TokenStorage.shared
     private let showAuthenticationScreenSegueIdentifier = "showAuthenticationScreen"
     
@@ -63,7 +64,9 @@ final class SplashViewController: UIViewController {
             guard let self else { return }
             
             switch result {
-            case .success:
+            case .success(let profile):
+                self.profileImageService.fetchProfileImageURL(username: profile.username) { _ in }
+                
                 self.switchToTabBarController()
                 
             case .failure(let error):
