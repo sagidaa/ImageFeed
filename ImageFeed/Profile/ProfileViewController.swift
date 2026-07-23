@@ -31,6 +31,7 @@ final class ProfileViewController: UIViewController {
     private let descriptionLabel = UILabel()
     
     private let profileService = ProfileService.shared
+    private var profileImageServiceObserver: NSObjectProtocol?
     
     // MARK: - Lifecycle
     
@@ -45,9 +46,27 @@ final class ProfileViewController: UIViewController {
         }
         
         updateProfileDetails(with: profile)
+        
+        profileImageServiceObserver = NotificationCenter.default.addObserver(
+            forName: ProfileImageService.didChangeNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            guard let self else { return }
+            self.updateAvatar()
+            }
+        updateAvatar()
     }
     
     // MARK: - Private Methods
+    
+    private func updateAvatar() {
+        guard
+            let profileImageURL = ProfileImageService.shared.avatarURL,
+            let url = URL(string: profileImageURL)
+        else { return }
+        // TODO [Sprint 11] Обновите аватар, используя Kingfisher
+    }
     
     private func updateProfileDetails(with profile: Profile) {
         nameLabel.text = profile.name.isEmpty

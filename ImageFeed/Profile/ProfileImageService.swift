@@ -12,6 +12,8 @@ final class ProfileImageService {
     static let shared = ProfileImageService()
     private init() {}
     
+    static let didChangeNotification = Notification.Name(rawValue: "ProfileImageProviderDidChange")
+    
     private let urlSession = URLSession.shared
     private var task: URLSessionTask?
     
@@ -47,10 +49,16 @@ final class ProfileImageService {
                     decoder.keyDecodingStrategy = .convertFromSnakeCase
                     
                     let userResult = try decoder.decode(UserResult.self, from: data)
-                    let url = userResult.profileImage.small
-                    self.avatarURL = url
+                    let profileImageURL = userResult.profileImage.small
+                    self.avatarURL = profileImageURL
                     
-                    completion(.success(url))
+                    completion(.success(profileImageURL))
+                    
+                    NotificationCenter.default.post(
+                        name: ProfileImageService.didChangeNotification,
+                        object: self,
+                        userInfo: ["URL": profileImageURL]
+                    )
                 } catch {
                     print("Profile image decoding error: \(error)")
                     completion(.failure(NetworkError.decodingError(error)))
