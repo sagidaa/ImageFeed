@@ -27,26 +27,16 @@ final class ProfileService {
         
         var newTask: URLSessionTask?
         
-        newTask = urlSession.data(for: request) { [weak self] result in
+        newTask = urlSession.objectTask(for: request) { [weak self] (result:Result<ProfileResult, Error>) in
             guard let self, self.task == newTask else { return }
             
             self.task = nil
-             
+            
             switch result {
-            case .success(let data):
-                do {
-                    let decoder = JSONDecoder()
-                    decoder.keyDecodingStrategy = .convertFromSnakeCase
-                    
-                    let profileResult = try decoder.decode(ProfileResult.self, from: data)
-                    let profile = self.makeProfile(from: profileResult)
-                    self.profile = profile
-                    
-                    completion(.success(profile))
-                } catch {
-                    print("Profile decoding error: \(error)")
-                    completion(.failure(NetworkError.decodingError(error)))
-                }
+            case .success(let profileResult):
+                let profile = self.makeProfile(from: profileResult)
+                self.profile = profile
+                completion(.success(profile))
                 
             case .failure(let error):
                 print("Profile request error: \(error)")
