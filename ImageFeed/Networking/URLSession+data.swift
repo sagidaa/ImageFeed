@@ -27,7 +27,7 @@ extension URLSession {
             }
         }
         
-        let task = dataTask(with: request, completionHandler: { data, response, error in
+        let task = dataTask(with: request) { data, response, error in
             if let data = data,
                let response = response,
                let statusCode = (response as? HTTPURLResponse)?.statusCode {
@@ -35,17 +35,30 @@ extension URLSession {
                 if 200..<300 ~= statusCode {
                     fulfillCompletionOnTheMainThread(.success(data))
                 } else {
-                    print(String(data: data, encoding: .utf8) ?? "Could not convert data to string")
-                    fulfillCompletionOnTheMainThread(.failure(NetworkError.httpStatusCode(statusCode)))
+                    let error = NetworkError.httpStatusCode(statusCode)
+                    let responseBody = String(data: data, encoding: .utf8) ?? ""
+                    
+                    print("[URLSession.data]: \(error.localizedDescription), " +
+                          "statusCode: \(statusCode), data: \(responseBody)")
+                    
+                    fulfillCompletionOnTheMainThread(.failure(error))
                 }
             } else if let error = error {
-                print("URL Request error: \(error)")
-                fulfillCompletionOnTheMainThread(.failure(NetworkError.urlRequestError(error)))
+                let networkError = NetworkError.urlRequestError(error)
+                
+                print("[URLSession.data]: \(networkError.localizedDescription), " +
+                    "request: \(request.url?.absoluteString ?? "")")
+                
+                fulfillCompletionOnTheMainThread(.failure(networkError))
             } else {
-                print(NetworkError.urlSessionError)
-                fulfillCompletionOnTheMainThread(.failure(NetworkError.urlSessionError))
+                let error = NetworkError.urlSessionError
+                
+                print("[URLSession.data]: \(error.localizedDescription), " +
+                      "request: \(request.url?.absoluteString ?? "")")
+                
+                fulfillCompletionOnTheMainThread(.failure(error))
             }
-        })
+        }
         
         return task
     }
@@ -66,10 +79,16 @@ extension URLSession {
                     let decodedObject = try decoder.decode(T.self, from: data)
                     completion(.success(decodedObject))
                 } catch {
-                    print("Decoding error: \(error)")
+                    let responseBody = String(data: data, encoding: .utf8) ?? ""
+
+                    print("[URLSession.objectTask]: DecodingError - " +
+                          "\(error.localizedDescription), data: \(responseBody)")
+                    
                     completion(.failure(NetworkError.decodingError(error)))
                 }
+                
             case .failure(let error):
+                print("[URLSession.objectTask]: \(error)")
                 completion(.failure(error))
             }
         }

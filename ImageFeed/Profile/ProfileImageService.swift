@@ -47,6 +47,8 @@ final class ProfileImageService {
                 let profileImageURL = userResult.profileImage.small
                 self.avatarURL = profileImageURL
                 
+                completion(.success(profileImageURL))
+                
                 NotificationCenter.default.post(
                     name: ProfileImageService.didChangeNotification,
                     object: self,
@@ -54,7 +56,7 @@ final class ProfileImageService {
                 )
                 
             case .failure(let error):
-                print("Profile image request error: \(error)")
+                print( "[ProfileImageService.fetchProfileImageURL]: \(error), username: \(username)")
                 completion(.failure(error))
             }
         }

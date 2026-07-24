@@ -45,6 +45,7 @@ final class OAuth2Service {
                 completion(.success(responseBody.accessToken))
                 
             case .failure(let error):
+                print("[OAuth2Service.fetchAuthToken]: \(error), code: \(code)")
                 completion(.failure(error))
             }
             

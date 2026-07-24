@@ -39,7 +39,7 @@ final class ProfileService {
                 completion(.success(profile))
                 
             case .failure(let error):
-                print("Profile request error: \(error)")
+                print("[ProfileService.fetchProfile]: \(error), request: \(request.url?.absoluteString ?? "")")
                 completion(.failure(error))
             }
         }
