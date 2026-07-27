@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Kingfisher
 
 final class ProfileViewController: UIViewController {
     
@@ -31,6 +32,7 @@ final class ProfileViewController: UIViewController {
     private let descriptionLabel = UILabel()
     
     private let profileService = ProfileService.shared
+    private let profileImageService = ProfileImageService.shared
     private var profileImageServiceObserver: NSObjectProtocol?
     
     // MARK: - Lifecycle
@@ -62,10 +64,12 @@ final class ProfileViewController: UIViewController {
     
     private func updateAvatar() {
         guard
-            let profileImageURL = ProfileImageService.shared.avatarURL,
+            let profileImageURL = profileImageService.avatarURL,
             let url = URL(string: profileImageURL)
         else { return }
-        // TODO [Sprint 11] Обновите аватар, используя Kingfisher
+        
+        avatarImageView.kf.indicatorType = .activity
+        avatarImageView.kf.setImage(with: url, placeholder: UIImage(resource: .noProfileImageStub))
     }
     
     private func updateProfileDetails(with profile: Profile) {
@@ -84,6 +88,7 @@ final class ProfileViewController: UIViewController {
         view.backgroundColor = .ypBlack
         
         avatarImageView.image = UIImage(resource: .noProfileImageStub)
+        avatarImageView.contentMode = .scaleAspectFill
         avatarImageView.layer.cornerRadius = LayoutConstants.avatarSize / 2
         avatarImageView.clipsToBounds = true
         
