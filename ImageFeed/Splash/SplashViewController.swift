@@ -11,21 +11,17 @@ final class SplashViewController: UIViewController {
     
     // MARK: - Properties
     
+    private let splashLogoImageView = UIImageView()
+    
     private let profileService = ProfileService.shared
     private let profileImageService = ProfileImageService.shared
     private let storage = OAuth2TokenStorage.shared
-    private let showAuthenticationScreenSegueIdentifier = "showAuthenticationScreen"
     
     // MARK: - Lifecycle
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        
-        if let token = storage.token {
-            fetchProfile(token)
-        } else {
-            performSegue(withIdentifier: showAuthenticationScreenSegueIdentifier, sender: nil)
-        }
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        configureView()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -33,27 +29,45 @@ final class SplashViewController: UIViewController {
         setNeedsStatusBarAppearanceUpdate()
     }
     
-    // MARK: - Navigation
-    
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-
-        if segue.identifier == showAuthenticationScreenSegueIdentifier {
-
-            guard
-                let navigationController = segue.destination as? UINavigationController,
-                let viewController = navigationController.viewControllers.first as? AuthViewController
-            else {
-                print("Failed to prepare for \(showAuthenticationScreenSegueIdentifier)")
-                return
-            }
-
-            viewController.delegate = self
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        if let token = storage.token {
+            fetchProfile(token)
         } else {
-            super.prepare(for: segue, sender: sender)
+            presentAuthViewController()
         }
     }
     
     // MARK: - Private Methods
+    
+    private func configureView() {
+        view.backgroundColor = .ypRed //-сделала временно красным, чтобы проверить
+        
+        splashLogoImageView.image = UIImage(resource: .splashScreenLogo)
+        splashLogoImageView.translatesAutoresizingMaskIntoConstraints = false
+        
+        view.addSubview(splashLogoImageView)
+        
+        NSLayoutConstraint.activate([
+            splashLogoImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            splashLogoImageView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+        ])
+        
+    }
+    
+    private func presentAuthViewController() {
+        let storyboard = UIStoryboard(name: "Main", bundle: .main)
+        guard let authViewController = storyboard.instantiateViewController(withIdentifier: "AuthViewController") as? AuthViewController else {
+            assertionFailure("Не удалось найти AuthViewController по идентификатору")
+            return
+        }
+        
+        authViewController.delegate = self
+        authViewController.modalPresentationStyle = .fullScreen
+        
+        present(authViewController, animated: true)
+    }
     
     private func fetchProfile(_ token: String) {
         UIBlockingProgressHUD.show()
@@ -95,11 +109,5 @@ final class SplashViewController: UIViewController {
 extension SplashViewController: AuthViewControllerDelegate {
     func didAuthenticate(_ vc: AuthViewController) {
         vc.dismiss(animated: true)
-        
-        guard let token = storage.token else {
-            return
-        }
-        
-        fetchProfile(token)
     }
 }
