@@ -76,12 +76,7 @@ final class ImagesListViewController: UIViewController {
     }
     
     private func presentSingleImageViewController(for indexPath: IndexPath) {
-        let storyboard = UIStoryboard(name: "Main", bundle: .main)
-        
-        guard let singleImageViewController = storyboard.instantiateViewController(withIdentifier: "SingleImageViewController") as? SingleImageViewController else {
-            assertionFailure("Не удалось найти SingleImageViewController по идентификатору")
-            return
-        }
+        let singleImageViewController = SingleImageViewController()
         
         guard let image = UIImage(named: photoNames[indexPath.row]) else {
             assertionFailure("Could not load image at index \(indexPath.row)")
