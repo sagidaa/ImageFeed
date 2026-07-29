@@ -42,7 +42,7 @@ final class SplashViewController: UIViewController {
     // MARK: - Private Methods
     
     private func configureView() {
-        view.backgroundColor = .ypRed //-сделала временно красным, чтобы проверить
+        view.backgroundColor = .ypBlack
         
         splashLogoImageView.image = UIImage(resource: .splashScreenLogo)
         splashLogoImageView.translatesAutoresizingMaskIntoConstraints = false
@@ -50,14 +50,15 @@ final class SplashViewController: UIViewController {
         view.addSubview(splashLogoImageView)
         
         NSLayoutConstraint.activate([
-            splashLogoImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            splashLogoImageView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+            splashLogoImageView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
+            splashLogoImageView.centerYAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerYAnchor)
         ])
         
     }
     
     private func presentAuthViewController() {
         let storyboard = UIStoryboard(name: "Main", bundle: .main)
+        
         guard let authViewController = storyboard.instantiateViewController(withIdentifier: "AuthViewController") as? AuthViewController else {
             assertionFailure("Не удалось найти AuthViewController по идентификатору")
             return
@@ -98,9 +99,7 @@ final class SplashViewController: UIViewController {
             return
         }
         
-        let tabBarController = UIStoryboard(name: "Main", bundle: .main)
-            .instantiateViewController(withIdentifier: "TabBarViewController")
-        window.rootViewController = tabBarController
+        window.rootViewController = TabBarController()
     }
 }
 

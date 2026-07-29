@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  ImageListCellModel.swift
 //  ImageFeed
 //
 //  Created by Sagida on 28.07.2026.

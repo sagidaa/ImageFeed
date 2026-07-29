@@ -8,17 +8,44 @@
 import UIKit
 
 final class TabBarController: UITabBarController {
-    override func awakeFromNib() {
-        let storyboard = UIStoryboard(name: "Main", bundle: .main)
+    
+    // MARK: - Lifecycle
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
         
-        let imagesListViewController = storyboard.instantiateViewController(withIdentifier: "ImagesListViewController")
+        setupViewControllers()
+        setupAppearance()
+    }
+    
+    // MARK: - Private Methods
+    
+    private func setupViewControllers() {
+        
+        let imagesListViewController = ImagesListViewController()
+        imagesListViewController.tabBarItem = UITabBarItem(
+            title: "",
+            image: .tabEditorialNotActive,
+            selectedImage: .tabEditorialActive)
         
         let profileViewController = ProfileViewController()
         profileViewController.tabBarItem = UITabBarItem(
             title: "",
-            image: UIImage(resource: .tabProfileActive),
-            selectedImage: nil)
+            image: .tabProfileNotActive,
+            selectedImage: .tabProfileActive)
         
         self.viewControllers = [imagesListViewController, profileViewController]
+    }
+    
+    private func setupAppearance() {
+        let appearance = UITabBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = .ypBlack
+
+        tabBar.standardAppearance = appearance
+        tabBar.scrollEdgeAppearance = appearance
+        
+        tabBar.tintColor = .ypWhite
+        tabBar.unselectedItemTintColor = .ypWhiteAlpha50
     }
 }
