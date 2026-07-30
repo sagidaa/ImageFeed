@@ -112,7 +112,7 @@ extension AuthViewController: WebViewViewControllerDelegate {
         navigationController?.popViewController(animated: true)
         UIBlockingProgressHUD.show()
         
-        oauth2Service.fetchAuthToken(code) { [weak self] result in
+        oauth2Service.fetchOAuthToken(code) { [weak self] result in
             UIBlockingProgressHUD.dismiss()
 
             guard let self else { return }
@@ -122,7 +122,7 @@ extension AuthViewController: WebViewViewControllerDelegate {
                 self.delegate?.didAuthenticate(self)
                 
             case .failure(let error):
-                print("Ошибка при аутентификации: \(error.localizedDescription)")
+                print("[AuthViewController.didAuthenticateWithCode]: \(error)")
                 self.showAuthErrorAlert()
             }
         }

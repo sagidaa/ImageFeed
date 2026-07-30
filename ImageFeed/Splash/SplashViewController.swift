@@ -80,7 +80,7 @@ final class SplashViewController: UIViewController {
                 self.switchToTabBarController()
                 
             case .failure(let error):
-                print("Profile error: \(error.localizedDescription)")
+                print("[SplashViewController.fetchProfile]: \(error)")
             }
         }
     }

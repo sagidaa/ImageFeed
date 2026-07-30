@@ -38,8 +38,10 @@ extension URLSession {
                     let error = NetworkError.httpStatusCode(statusCode)
                     let responseBody = String(data: data, encoding: .utf8) ?? ""
                     
-                    print("[URLSession.data]: \(error.localizedDescription), " +
-                          "statusCode: \(statusCode), data: \(responseBody)")
+                    print("[URLSession.data]: \(NetworkError.httpStatusCode(statusCode)), " +
+                          "statusCode: \(statusCode), " +
+                          "request: \(request.url?.absoluteString ?? "unknown"), " +
+                          "data: \(responseBody)")
                     
                     fulfillCompletionOnTheMainThread(.failure(error))
                 }

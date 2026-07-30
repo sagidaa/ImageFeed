@@ -26,11 +26,13 @@ final class ProfileImageService {
         task = nil
         
         guard let token = OAuth2TokenStorage.shared.token else {
+            print("[ProfileImageService.fetchProfileImageURL]: \(NetworkError.missingToken), username: \(username)")
             completion(.failure(NetworkError.missingToken))
             return
         }
         
         guard let request = makeProfileImageRequest(username: username, token: token) else {
+            print("[ProfileImageService.fetchProfileImageURL]: \(NetworkError.invalidRequest), failed to create request, username: \(username)")
             completion(.failure(NetworkError.invalidRequest))
             return
         }

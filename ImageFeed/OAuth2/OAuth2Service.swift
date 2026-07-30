@@ -18,13 +18,10 @@ final class OAuth2Service {
     private var task: URLSessionTask?
     private var lastCode: String?
     
-    func fetchAuthToken(_ code: String, completion: @escaping (Result<String, Error>) -> Void) {
+    func fetchOAuthToken(_ code: String, completion: @escaping (Result<String, Error>) -> Void) {
         assert(Thread.isMainThread)
         
-        guard lastCode != code else {
-            completion(.failure(NetworkError.invalidRequest))
-            return
-        }
+        guard lastCode != code else { return }
         
         task?.cancel()
         lastCode = code
@@ -45,7 +42,7 @@ final class OAuth2Service {
                 completion(.success(responseBody.accessToken))
                 
             case .failure(let error):
-                print("[OAuth2Service.fetchAuthToken]: \(error), code: \(code)")
+                print("[OAuth2Service.fetchOAuthToken]: \(error), code: \(code)")
                 completion(.failure(error))
             }
             
@@ -60,7 +57,7 @@ final class OAuth2Service {
     
     private func makeOAuthTokenRequest(code: String) -> URLRequest? {
         guard var urlComponents = URLComponents(string: APIConstants.unsplashOAuthTokenURLString) else {
-            print("Error: failed to create URLComponents from string")
+            print("[OAuth2Service.makeOAuthTokenRequest]: invalid URLComponents, code: \(code)")
             return nil
         }
         
@@ -73,7 +70,7 @@ final class OAuth2Service {
         ]
         
         guard let authTokenUrl = urlComponents.url else {
-            print("Error: failed to construct URL from components")
+            print("[OAuth2Service.makeOAuthTokenRequest]: failed to create URL")
             return nil
         }
         
