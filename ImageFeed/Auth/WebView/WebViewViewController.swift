@@ -49,6 +49,8 @@ final class WebViewViewController: UIViewController {
     }
     
     private func setupViews() {
+        view.backgroundColor = .ypWhite
+        
         webView.translatesAutoresizingMaskIntoConstraints = false
         webView.backgroundColor = .ypWhite
         

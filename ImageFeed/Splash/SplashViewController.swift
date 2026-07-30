@@ -53,21 +53,16 @@ final class SplashViewController: UIViewController {
             splashLogoImageView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
             splashLogoImageView.centerYAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerYAnchor)
         ])
-        
     }
     
     private func presentAuthViewController() {
-        let storyboard = UIStoryboard(name: "Main", bundle: .main)
-        
-        guard let authViewController = storyboard.instantiateViewController(withIdentifier: "AuthViewController") as? AuthViewController else {
-            assertionFailure("Не удалось найти AuthViewController по идентификатору")
-            return
-        }
-        
+        let authViewController = AuthViewController()
         authViewController.delegate = self
-        authViewController.modalPresentationStyle = .fullScreen
         
-        present(authViewController, animated: true)
+        let navigationController = UINavigationController(rootViewController: authViewController)
+        navigationController.modalPresentationStyle = .fullScreen
+        
+        present(navigationController, animated: true)
     }
     
     private func fetchProfile(_ token: String) {
@@ -85,7 +80,7 @@ final class SplashViewController: UIViewController {
                 self.switchToTabBarController()
                 
             case .failure(let error):
-                print("Profile error:\(error.localizedDescription)")
+                print("Profile error: \(error.localizedDescription)")
             }
         }
     }

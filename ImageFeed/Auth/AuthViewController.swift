@@ -10,38 +10,72 @@ import ProgressHUD
 
 final class AuthViewController: UIViewController {
     
+    // MARK: - Constants
+    
+    private enum LayoutConstants {
+        static let buttonInset: CGFloat = 16
+        static let buttonBottomPadding: CGFloat = 90
+        
+        static let authLogoSize: CGFloat = 60
+        static let buttonHeight: CGFloat = 48
+    }
+    
     // MARK: - Properties
     
-    private let showWebViewSegueIdentifier = "ShowWebView"
     private let oauth2Service = OAuth2Service.shared
     
     weak var delegate: AuthViewControllerDelegate?
+    
+    private let authLogoImageView = UIImageView()
+    private let loginButton = UIButton()
     
     // MARK: - Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        setupViews()
+        setupConstraints()
         configureBackButton()
     }
+     
+    // MARK: - Private Methods
     
-    // MARK: - Navigation
-    
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == showWebViewSegueIdentifier {
-            guard
-                let webViewViewController = segue.destination as? WebViewViewController
-            else {
-                print("Invalid segue destination")
-                return
-            }
-            webViewViewController.delegate = self
-        } else {
-            super.prepare(for: segue, sender: sender)
+    private func setupViews() {
+        view.backgroundColor = .ypBlack
+        
+        authLogoImageView.image = UIImage(resource: .authScreenLogo)
+        authLogoImageView.contentMode = .scaleAspectFit
+        
+        loginButton.setTitle("Войти", for: .normal)
+        loginButton.setTitleColor(.ypBlack, for: .normal)
+        loginButton.titleLabel?.font = .systemFont(ofSize: 17, weight: .bold)
+        
+        loginButton.backgroundColor = .ypWhite
+        loginButton.layer.cornerRadius = 16
+        loginButton.clipsToBounds = true
+        
+        loginButton.addTarget(self, action: #selector(didTapLoginButton), for: .touchUpInside)
+        
+        [authLogoImageView, loginButton].forEach {
+            $0.translatesAutoresizingMaskIntoConstraints = false
+            view.addSubview($0)
         }
     }
     
-    // MARK: - Private Methods
+    private func setupConstraints() {
+        NSLayoutConstraint.activate([
+            authLogoImageView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
+            authLogoImageView.centerYAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerYAnchor),
+            authLogoImageView.heightAnchor.constraint(equalToConstant: LayoutConstants.authLogoSize),
+            authLogoImageView.widthAnchor.constraint(equalToConstant: LayoutConstants.authLogoSize),
+            
+            loginButton.heightAnchor.constraint(equalToConstant: LayoutConstants.buttonHeight),
+            loginButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: LayoutConstants.buttonInset),
+            loginButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -LayoutConstants.buttonInset),
+            loginButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -LayoutConstants.buttonBottomPadding)
+        ])
+    }
     
     private func configureBackButton() {
         navigationController?.navigationBar.backIndicatorImage = UIImage(resource: .navBarBackButton)
@@ -62,13 +96,20 @@ final class AuthViewController: UIViewController {
         
         present(alertController, animated: true)
     }
+    
+    @objc private func didTapLoginButton() {
+        let webViewViewController = WebViewViewController()
+        webViewViewController.delegate = self
+        
+        navigationController?.pushViewController(webViewViewController, animated: true)
+    }
 }
 
 // MARK: - WebViewViewControllerDelegate
 
 extension AuthViewController: WebViewViewControllerDelegate {
     func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String) {
-        vc.dismiss(animated: true)
+        navigationController?.popViewController(animated: true)
         UIBlockingProgressHUD.show()
         
         oauth2Service.fetchAuthToken(code) { [weak self] result in
@@ -88,6 +129,6 @@ extension AuthViewController: WebViewViewControllerDelegate {
     }
     
     func webViewViewControllerDidCancel(_ vc: WebViewViewController) {
-        vc.dismiss(animated: true)
+        navigationController?.popViewController(animated: true)
     }
 }
