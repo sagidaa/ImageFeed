@@ -25,10 +25,10 @@ final class ImagesListCell: UITableViewCell {
     
     // MARK: - UI Elements
     
-    private let photoImageView = UIImageView()
-    private let gradientView = UIImageView()
-    private let dateLabel = UILabel()
-    private let likeButton = UIButton()
+    private lazy var photoImageView = UIImageView()
+    private lazy var gradientView = UIImageView()
+    private lazy var dateLabel = UILabel()
+    private lazy var likeButton = UIButton()
     
     // MARK: - Lifecycle
     
@@ -39,8 +39,9 @@ final class ImagesListCell: UITableViewCell {
         setupConstraints()
     }
     
+    @available(*, unavailable)
     required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        nil
     }
     
     // MARK: - Configuration
@@ -49,10 +50,7 @@ final class ImagesListCell: UITableViewCell {
         photoImageView.image = image
         dateLabel.text = date
         
-        let likeImage = isLiked
-        ? UIImage(resource: .likeButtonOn)
-        : UIImage(resource: .likeButtonOff)
-        
+        let likeImage = isLiked ? UIImage(resource: .likeButtonOn) : UIImage(resource: .likeButtonOff)
         likeButton.setImage(likeImage, for: .normal)
     }
     
