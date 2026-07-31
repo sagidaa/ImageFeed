@@ -7,15 +7,6 @@
 
 import Foundation
 
-enum NetworkError: Error {
-    case httpStatusCode(Int)
-    case urlRequestError(Error)
-    case urlSessionError
-    case invalidRequest
-    case decodingError(Error)
-    case missingToken
-}
-
 extension URLSession {
     func data(
         for request: URLRequest,

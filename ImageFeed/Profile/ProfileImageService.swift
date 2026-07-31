@@ -12,7 +12,7 @@ final class ProfileImageService {
     static let shared = ProfileImageService()
     private init() {}
     
-    static let didChangeNotification = Notification.Name(rawValue: "ProfileImageProviderDidChange")
+    static let didChangeNotification = Notification.Name("ProfileImageProviderDidChange")
     
     private let urlSession = URLSession.shared
     private var task: URLSessionTask?
@@ -73,7 +73,7 @@ final class ProfileImageService {
         }
         
         var request = URLRequest(url: profileImageUrl)
-        request.httpMethod = "GET"
+        request.httpMethod = HTTPMethod.get.rawValue
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         
         return request
