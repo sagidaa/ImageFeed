@@ -12,11 +12,52 @@ final class OAuth2Service {
     static let shared = OAuth2Service()
     private init() { }
     
-    private let storage = OAuth2TokenStorage()
+    private let storage = OAuth2TokenStorage.shared
+    
+    private let urlSession = URLSession.shared
+    private var task: URLSessionTask?
+    private var lastCode: String?
+    
+    func fetchOAuthToken(_ code: String, completion: @escaping (Result<String, Error>) -> Void) {
+        assert(Thread.isMainThread)
+        
+        guard lastCode != code else { return }
+        
+        task?.cancel()
+        lastCode = code
+        
+        guard let request = makeOAuthTokenRequest(code: code) else {
+            task = nil
+            lastCode = nil
+            completion(.failure(NetworkError.invalidRequest))
+            return
+        }
+        
+        task = urlSession.objectTask(for: request) { [weak self] (result: Result<OAuthTokenResponseBody, Error>) in
+            guard let self else { return }
+            
+            switch result {
+            case .success(let responseBody):
+                self.storage.token = responseBody.accessToken
+                completion(.success(responseBody.accessToken))
+                
+            case .failure(let error):
+                print("[OAuth2Service.fetchOAuthToken]: \(error), code: \(code)")
+                completion(.failure(error))
+            }
+            
+            if self.lastCode == code {
+                self.task = nil
+                self.lastCode = nil
+            }
+        }
+        
+        task?.resume()
+    }
     
     private func makeOAuthTokenRequest(code: String) -> URLRequest? {
-        guard var urlComponents = URLComponents(string: WebViewConstants.unsplashOAuthTokenURLString) else {
-            print("Error: failed to create URLComponents from string")
+        guard var urlComponents = URLComponents(string: APIConstants.unsplashOAuthTokenURLString) else {
+            print("[OAuth2Service.makeOAuthTokenRequest]: invalid URLComponents, code: \(code)")
             return nil
         }
         
@@ -29,42 +70,12 @@ final class OAuth2Service {
         ]
         
         guard let authTokenUrl = urlComponents.url else {
-            print("Error: failed to construct URL from components")
+            print("[OAuth2Service.makeOAuthTokenRequest]: failed to create URL")
             return nil
         }
         
         var request = URLRequest(url: authTokenUrl)
-        request.httpMethod = "POST"
+        request.httpMethod = HTTPMethod.post.rawValue
         return request
-    }
-
-    func fetchAuthToken(_ code: String, completion: @escaping (Result<String, Error>) -> Void) {
-        guard let request = makeOAuthTokenRequest(code: code) else {
-            completion(.failure(NetworkError.invalidRequest))
-            return
-        }
-        
-        let task = URLSession.shared.data(for: request) { [weak self] result in
-            guard let self else { return }
-            
-            switch result {
-            case .success(let data):
-                do {
-                    let decoder = JSONDecoder()
-                    decoder.keyDecodingStrategy = .convertFromSnakeCase
-                    
-                    let responseBody = try decoder.decode(OAuthTokenResponseBody.self, from: data)
-                    self.storage.token = responseBody.accessToken
-                    completion(.success(responseBody.accessToken))
-                } catch {
-                    print("Decoding error: \(error)")
-                    completion(.failure(NetworkError.decodingError(error)))
-                }
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }
-        
-        task.resume()
     }
 }

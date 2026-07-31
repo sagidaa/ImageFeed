@@ -6,12 +6,13 @@
 //
 
 import UIKit
+import Kingfisher
 
 final class ProfileViewController: UIViewController {
     
     // MARK: - Constants
     
-    private enum Constants {
+    private enum LayoutConstants {
         static let nameFontSize: CGFloat = 23
         static let secondaryFontSize: CGFloat = 13
         
@@ -26,9 +27,13 @@ final class ProfileViewController: UIViewController {
     
     private let avatarImageView = UIImageView()
     private let logoutButton = UIButton()
-    private let fullNameLabel = UILabel()
-    private let usernameLabel = UILabel()
-    private let bioLabel = UILabel()
+    private let nameLabel = UILabel()
+    private let loginNameLabel = UILabel()
+    private let descriptionLabel = UILabel()
+    
+    private let profileService = ProfileService.shared
+    private let profileImageService = ProfileImageService.shared
+    private var profileImageServiceObserver: NSObjectProtocol?
     
     // MARK: - Lifecycle
     
@@ -37,15 +42,54 @@ final class ProfileViewController: UIViewController {
         
         setupViews()
         setupConstraints()
+        
+        guard let profile = profileService.profile else {
+            return
+        }
+        
+        updateProfileDetails(with: profile)
+        
+        profileImageServiceObserver = NotificationCenter.default.addObserver(
+            forName: ProfileImageService.didChangeNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            guard let self else { return }
+            self.updateAvatar()
+            }
+        updateAvatar()
     }
     
     // MARK: - Private Methods
     
+    private func updateAvatar() {
+        guard
+            let profileImageURL = profileImageService.avatarURL,
+            let url = URL(string: profileImageURL)
+        else { return }
+        
+        avatarImageView.kf.indicatorType = .activity
+        avatarImageView.kf.setImage(with: url, placeholder: UIImage(resource: .noProfileImageStub))
+    }
+    
+    private func updateProfileDetails(with profile: Profile) {
+        nameLabel.text = profile.name.isEmpty
+            ? "Имя не указано"
+            : profile.name
+        loginNameLabel.text = profile.loginName.isEmpty
+            ? "@неизвестный_пользователь"
+            : profile.loginName
+        descriptionLabel.text = (profile.bio?.isEmpty ?? true)
+            ? "Профиль не заполнен"
+            : profile.bio
+    }
+    
     private func setupViews() {
         view.backgroundColor = .ypBlack
         
-        avatarImageView.image = UIImage(resource: .mockProfile)
-        avatarImageView.layer.cornerRadius = Constants.avatarSize / 2
+        avatarImageView.image = UIImage(resource: .noProfileImageStub)
+        avatarImageView.contentMode = .scaleAspectFill
+        avatarImageView.layer.cornerRadius = LayoutConstants.avatarSize / 2
         avatarImageView.clipsToBounds = true
         
         let image = UIImage(resource: .logoutButton)
@@ -53,19 +97,17 @@ final class ProfileViewController: UIViewController {
         logoutButton.tintColor = .ypRed
         logoutButton.addTarget(self, action: #selector(logoutTapped), for: .touchUpInside)
         
-        fullNameLabel.text = "Екатерина Новикова"
-        fullNameLabel.font = .systemFont(ofSize: Constants.nameFontSize, weight: .bold)
-        fullNameLabel.textColor = .ypWhite
+        nameLabel.font = .systemFont(ofSize: LayoutConstants.nameFontSize, weight: .bold)
+        nameLabel.textColor = .ypWhite
         
-        usernameLabel.text = "@ekaterina_nov"
-        usernameLabel.font = .systemFont(ofSize: Constants.secondaryFontSize)
-        usernameLabel.textColor = .ypGray
+        loginNameLabel.font = .systemFont(ofSize: LayoutConstants.secondaryFontSize)
+        loginNameLabel.textColor = .ypGray
         
-        bioLabel.text = "Hello, world!"
-        bioLabel.font = .systemFont(ofSize: Constants.secondaryFontSize)
-        bioLabel.textColor = .ypWhite
+        descriptionLabel.font = .systemFont(ofSize: LayoutConstants.secondaryFontSize)
+        descriptionLabel.textColor = .ypWhite
+        descriptionLabel.numberOfLines = 0
         
-        [avatarImageView, logoutButton, fullNameLabel, usernameLabel, bioLabel].forEach {
+        [avatarImageView, logoutButton, nameLabel, loginNameLabel, descriptionLabel].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
             view.addSubview($0)
         }
@@ -73,24 +115,27 @@ final class ProfileViewController: UIViewController {
     
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            avatarImageView.widthAnchor.constraint(equalToConstant: Constants.avatarSize),
+            avatarImageView.widthAnchor.constraint(equalToConstant: LayoutConstants.avatarSize),
             avatarImageView.heightAnchor.constraint(equalTo: avatarImageView.widthAnchor),
-            avatarImageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: Constants.topInset),
-            avatarImageView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: Constants.horizontalInset),
+            avatarImageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: LayoutConstants.topInset),
+            avatarImageView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: LayoutConstants.horizontalInset),
             
-            logoutButton.widthAnchor.constraint(equalToConstant: Constants.buttonSize),
+            logoutButton.widthAnchor.constraint(equalToConstant: LayoutConstants.buttonSize),
             logoutButton.heightAnchor.constraint(equalTo: logoutButton.widthAnchor),
             logoutButton.centerYAnchor.constraint(equalTo: avatarImageView.centerYAnchor),
-            logoutButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -Constants.horizontalInset),
+            logoutButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -LayoutConstants.horizontalInset),
             
-            fullNameLabel.topAnchor.constraint(equalTo: avatarImageView.bottomAnchor, constant: Constants.spacing),
-            fullNameLabel.leadingAnchor.constraint(equalTo: avatarImageView.leadingAnchor),
+            nameLabel.topAnchor.constraint(equalTo: avatarImageView.bottomAnchor, constant: LayoutConstants.spacing),
+            nameLabel.leadingAnchor.constraint(equalTo: avatarImageView.leadingAnchor),
+            nameLabel.trailingAnchor.constraint(equalTo: logoutButton.trailingAnchor),
             
-            usernameLabel.topAnchor.constraint(equalTo: fullNameLabel.bottomAnchor, constant: Constants.spacing),
-            usernameLabel.leadingAnchor.constraint(equalTo: avatarImageView.leadingAnchor),
+            loginNameLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: LayoutConstants.spacing),
+            loginNameLabel.leadingAnchor.constraint(equalTo: avatarImageView.leadingAnchor),
+            loginNameLabel.trailingAnchor.constraint(equalTo: logoutButton.trailingAnchor),
             
-            bioLabel.topAnchor.constraint(equalTo: usernameLabel.bottomAnchor, constant: Constants.spacing),
-            bioLabel.leadingAnchor.constraint(equalTo: avatarImageView.leadingAnchor)
+            descriptionLabel.topAnchor.constraint(equalTo: loginNameLabel.bottomAnchor, constant: LayoutConstants.spacing),
+            descriptionLabel.leadingAnchor.constraint(equalTo: avatarImageView.leadingAnchor),
+            descriptionLabel.trailingAnchor.constraint(equalTo: logoutButton.trailingAnchor)
         ])
     }
     
