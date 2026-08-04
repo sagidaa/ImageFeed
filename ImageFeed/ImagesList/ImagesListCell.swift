@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Kingfisher
 
 final class ImagesListCell: UITableViewCell {
     
@@ -25,7 +26,7 @@ final class ImagesListCell: UITableViewCell {
     
     // MARK: - UI Elements
     
-    private lazy var photoImageView = UIImageView()
+    private lazy var fullSizeImageView = UIImageView()
     private lazy var gradientView = UIImageView()
     private lazy var dateLabel = UILabel()
     private lazy var likeButton = UIButton()
@@ -44,14 +45,27 @@ final class ImagesListCell: UITableViewCell {
         nil
     }
     
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        
+        fullSizeImageView.kf.cancelDownloadTask()
+        fullSizeImageView.image = nil
+        dateLabel.text = nil
+        likeButton.setImage(nil, for: .normal)
+    }
+    
     // MARK: - Configuration
     
-    func configure(image: UIImage, date: String, isLiked: Bool) {
-        photoImageView.image = image
+    func configure(imageURL: URL?, placeholder: UIImage?, date: String, isLiked: Bool, completion: @escaping() -> Void) {
         dateLabel.text = date
         
         let likeImage = isLiked ? UIImage(resource: .likeButtonOn) : UIImage(resource: .likeButtonOff)
         likeButton.setImage(likeImage, for: .normal)
+        
+        fullSizeImageView.kf.setImage(with: imageURL, placeholder: placeholder) { result in
+            guard case .success = result else { return }
+            completion()
+        }
     }
     
     // MARK: - Private Methods
@@ -61,9 +75,10 @@ final class ImagesListCell: UITableViewCell {
         backgroundColor = .ypBlack
         contentView.backgroundColor = .ypBlack
         
-        photoImageView.contentMode = .scaleAspectFill
-        photoImageView.clipsToBounds = true
-        photoImageView.layer.cornerRadius = LayoutConstants.cornerRadius
+        fullSizeImageView.contentMode = .scaleAspectFill
+        fullSizeImageView.clipsToBounds = true
+        fullSizeImageView.layer.cornerRadius = LayoutConstants.cornerRadius
+        fullSizeImageView.kf.indicatorType = .activity
         
         gradientView.contentMode = .scaleToFill
         gradientView.image = .gradientView
@@ -72,7 +87,7 @@ final class ImagesListCell: UITableViewCell {
         dateLabel.textColor = .ypWhite
         
         
-        [photoImageView, gradientView, dateLabel, likeButton].forEach {
+        [fullSizeImageView, gradientView, dateLabel, likeButton].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
             contentView.addSubview($0)
         }
@@ -80,24 +95,24 @@ final class ImagesListCell: UITableViewCell {
     
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            photoImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: LayoutConstants.verticalInset),
-            photoImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: LayoutConstants.horizontalInset),
-            photoImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -LayoutConstants.horizontalInset),
-            photoImageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -LayoutConstants.verticalInset),
+            fullSizeImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: LayoutConstants.verticalInset),
+            fullSizeImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: LayoutConstants.horizontalInset),
+            fullSizeImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -LayoutConstants.horizontalInset),
+            fullSizeImageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -LayoutConstants.verticalInset),
             
             gradientView.heightAnchor.constraint(equalToConstant: LayoutConstants.gradientHeight),
-            gradientView.leadingAnchor.constraint(equalTo: photoImageView.leadingAnchor),
-            gradientView.trailingAnchor.constraint(equalTo: photoImageView.trailingAnchor),
-            gradientView.bottomAnchor.constraint(equalTo: photoImageView.bottomAnchor),
+            gradientView.leadingAnchor.constraint(equalTo: fullSizeImageView.leadingAnchor),
+            gradientView.trailingAnchor.constraint(equalTo: fullSizeImageView.trailingAnchor),
+            gradientView.bottomAnchor.constraint(equalTo: fullSizeImageView.bottomAnchor),
             
-            dateLabel.leadingAnchor.constraint(equalTo: photoImageView.leadingAnchor, constant: LayoutConstants.spacing),
-            dateLabel.trailingAnchor.constraint(lessThanOrEqualTo: photoImageView.trailingAnchor, constant: -LayoutConstants.spacing),
-            dateLabel.bottomAnchor.constraint(equalTo: photoImageView.bottomAnchor, constant: -LayoutConstants.spacing),
+            dateLabel.leadingAnchor.constraint(equalTo: fullSizeImageView.leadingAnchor, constant: LayoutConstants.spacing),
+            dateLabel.trailingAnchor.constraint(lessThanOrEqualTo: fullSizeImageView.trailingAnchor, constant: -LayoutConstants.spacing),
+            dateLabel.bottomAnchor.constraint(equalTo: fullSizeImageView.bottomAnchor, constant: -LayoutConstants.spacing),
             
             likeButton.heightAnchor.constraint(equalToConstant: LayoutConstants.buttonSize),
             likeButton.widthAnchor.constraint(equalToConstant: LayoutConstants.buttonSize),
-            likeButton.topAnchor.constraint(equalTo: photoImageView.topAnchor),
-            likeButton.trailingAnchor.constraint(equalTo: photoImageView.trailingAnchor)
+            likeButton.topAnchor.constraint(equalTo: fullSizeImageView.topAnchor),
+            likeButton.trailingAnchor.constraint(equalTo: fullSizeImageView.trailingAnchor)
         ])
     }
 }
