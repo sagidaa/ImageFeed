@@ -56,6 +56,37 @@ final class ImagesListService {
         task?.resume()
     }
     
+    func changeLike(photoId: String, isLike: Bool, _ completion: @escaping (Result<Void, Error>) -> Void) {
+        guard let request = makeLikeRequest(photoId: photoId, isLike: isLike) else {
+            print("[ImagesListService.changeLike]: \(NetworkError.invalidRequest), photoId: \(photoId)")
+            completion(.failure(NetworkError.invalidRequest))
+            return
+        }
+        
+        let task = urlSession.objectTask(for: request) { [weak self] (result: Result<PhotoResult, Error>) in
+            guard let self else { return }
+            
+            switch result {
+            case .success(let photoResult):
+                guard let index = self.photos.firstIndex(where: { $0.id == photoId }) else {
+                    print("[ImagesListService.changeLike]: \(NetworkError.photoNotFound), photoId: \(photoId)")
+                    completion(.failure(NetworkError.photoNotFound))
+                    return
+                }
+                                
+                self.photos[index] = self.makePhotos(from: photoResult)
+                
+                completion(.success(()))
+                
+            case .failure(let error):
+                print("[ImagesListService.changeLike]: \(error), request: \(request.url?.absoluteString ?? "unknown")")
+                completion(.failure(error))
+            }
+        }
+        
+        task.resume()
+    }
+    
     private func makePhotosRequest(page: Int) -> URLRequest? {
         guard
             let token = OAuth2TokenStorage.shared.token,
@@ -88,6 +119,26 @@ final class ImagesListService {
             welcomeDescription: result.description,
             thumbImageURL: result.urls.thumb,
             largeImageURL: result.urls.full,
-            isLiked: result.likedByUser)
+            isLiked: result.likedByUser
+        )
+    }
+    
+    private func makeLikeRequest(photoId: String, isLike: Bool) -> URLRequest? {
+        guard
+            let token = OAuth2TokenStorage.shared.token,
+            let urlComponents = URLComponents(string: "\(APIConstants.photosURL)/\(photoId)/like")
+        else {
+            return nil
+        }
+        
+        guard let url = urlComponents.url else {
+            return nil
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod =  isLike ? HTTPMethod.post.rawValue : HTTPMethod.delete.rawValue
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        
+        return request
     }
 }

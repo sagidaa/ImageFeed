@@ -11,6 +11,7 @@ import Kingfisher
 final class ImagesListCell: UITableViewCell {
     
     static let reuseIdentifier = "ImagesListCell"
+    weak var delegate: ImagesListCellDelegate?
     
     // MARK: - Constants
     
@@ -58,9 +59,7 @@ final class ImagesListCell: UITableViewCell {
     
     func configure(imageURL: URL?, placeholder: UIImage?, date: String, isLiked: Bool, completion: @escaping() -> Void) {
         dateLabel.text = date
-        
-        let likeImage = isLiked ? UIImage(resource: .likeButtonOn) : UIImage(resource: .likeButtonOff)
-        likeButton.setImage(likeImage, for: .normal)
+        setIsLiked(isLiked)
         
         fullSizeImageView.kf.setImage(with: imageURL, placeholder: placeholder) { result in
             guard case .success = result else { return }
@@ -68,7 +67,16 @@ final class ImagesListCell: UITableViewCell {
         }
     }
     
+    func setIsLiked(_ isLiked: Bool) {
+        let image = isLiked ? UIImage(resource: .likeButtonOn) : UIImage(resource: .likeButtonOff)
+        likeButton.setImage(image, for: .normal)
+    }
+    
     // MARK: - Private Methods
+    
+    @objc private func likeButtonClicked() {
+        delegate?.imageListCellDidTapLike(self)
+    }
     
     private func setupViews() {
         selectionStyle = .none
@@ -85,6 +93,8 @@ final class ImagesListCell: UITableViewCell {
         
         dateLabel.font = .systemFont(ofSize: 13, weight: .regular)
         dateLabel.textColor = .ypWhite
+        
+        likeButton.addTarget(self, action: #selector(likeButtonClicked), for: .touchUpInside)
         
         
         [fullSizeImageView, gradientView, dateLabel, likeButton].forEach {

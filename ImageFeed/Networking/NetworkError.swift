@@ -14,4 +14,5 @@ enum NetworkError: Error {
     case invalidRequest
     case decodingError(Error)
     case missingToken
+    case photoNotFound
 }
