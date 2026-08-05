@@ -7,6 +7,7 @@
 
 import UIKit
 import Kingfisher
+import ProgressHUD
 
 final class ImagesListViewController: UIViewController {
     
@@ -136,6 +137,19 @@ final class ImagesListViewController: UIViewController {
             } completion: { _ in }
         }
     }
+    
+    private func showLikeErrorAlert() {
+        let alertController = UIAlertController(
+            title: "Что-то пошло не так",
+            message: "Не удалось поставить лайк",
+            preferredStyle: .alert
+        )
+        
+        let okAction = UIAlertAction(title: "Ок", style: .default)
+        alertController.addAction(okAction)
+        
+        present(alertController, animated: true)
+    }
 }
 
 // MARK: - UITableViewDataSource
@@ -152,6 +166,8 @@ extension ImagesListViewController: UITableViewDataSource {
             assertionFailure("Could not dequeue ImagesListCell")
             return UITableViewCell()
         }
+        
+        imageListCell.delegate = self
         
         configCell(imageListCell, at: indexPath)
         
@@ -192,6 +208,36 @@ extension ImagesListViewController: UITableViewDelegate {
         
         if indexPath.row == lastRowIndex {
             imagesListService.fetchPhotosNextPage()
+        }
+    }
+}
+
+// MARK: - ImagesListCellDelegate
+
+extension ImagesListViewController: ImagesListCellDelegate {
+    func imageListCellDidTapLike(_ cell: ImagesListCell) {
+        guard let indexPath = tableView.indexPath(for: cell) else { return }
+        let photo = photos[indexPath.row]
+        
+        UIBlockingProgressHUD.show()
+        
+        imagesListService.changeLike(photoId: photo.id, isLike: !photo.isLiked) { [weak self] result in
+            UIBlockingProgressHUD.dismiss()
+            
+            guard let self else { return }
+            
+            switch result {
+            case .success:
+                self.photos = self.imagesListService.photos
+                
+                guard indexPath.row < self.photos.count else { return }
+                
+                self.tableView.reloadRows(at: [indexPath], with: .none)
+                
+            case .failure(let error):
+                print("[ImagesListViewController.imageListCellDidTapLike]: \(error)")
+                self.showLikeErrorAlert()
+            }
         }
     }
 }
