@@ -98,19 +98,22 @@ final class ImagesListViewController: UIViewController {
         }
     }
     
-//    private func presentSingleImageViewController(for indexPath: IndexPath) {
-//        let singleImageViewController = SingleImageViewController()
-//        
-//        guard let image = UIImage(named: photoNames[indexPath.row]) else {
-//            assertionFailure("Could not load image at index \(indexPath.row)")
-//            return
-//        }
-//        
-//        singleImageViewController.image = image
-//        singleImageViewController.modalPresentationStyle = .fullScreen
-//        
-//        present(singleImageViewController, animated: true)
-//    }
+    private func presentSingleImageViewController(for indexPath: IndexPath) {
+        guard indexPath.row < photos.count else { return }
+        
+        let photo = photos[indexPath.row]
+        
+        guard let fullImageURL = URL(string: photo.largeImageURL) else {
+            print("[ImagesListViewController.imageListCellDidTapLike]: \(NetworkError.invalidRequest)")
+            return
+        }
+        
+        let singleImageViewController = SingleImageViewController()
+        singleImageViewController.fullImageURL = fullImageURL
+        singleImageViewController.modalPresentationStyle = .fullScreen
+        
+        present(singleImageViewController, animated: true)
+    }
     
     private func observeImagesListService() {
         imagesListServiceObserver = NotificationCenter.default.addObserver(
@@ -183,7 +186,7 @@ extension ImagesListViewController: UITableViewDataSource {
 
 extension ImagesListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-//        presentSingleImageViewController(for: indexPath)
+        presentSingleImageViewController(for: indexPath)
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {

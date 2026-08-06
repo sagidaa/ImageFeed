@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Kingfisher
 
 final class SingleImageViewController: UIViewController {
     
@@ -23,12 +24,7 @@ final class SingleImageViewController: UIViewController {
     
     // MARK: - Properties
     
-    var image: UIImage? {
-        didSet {
-            guard isViewLoaded, let image else { return }
-            configureImage(with: image)
-        }
-    }
+    var fullImageURL: URL?
     
     private let scrollView = UIScrollView()
     private let imageView = UIImageView()
@@ -42,13 +38,53 @@ final class SingleImageViewController: UIViewController {
         
         setupViews()
         setupConstraints()
-                
-        if let image {
-            configureImage(with: image)
-        }
+        loadFullImage()
     }
     
     // MARK: - Private Methods
+    
+    private func loadFullImage() {
+        guard let fullImageURL else {
+            showError()
+            return
+        }
+        
+        UIBlockingProgressHUD.show()
+        
+        imageView.kf.setImage(with: fullImageURL) { [weak self] result in
+            UIBlockingProgressHUD.dismiss()
+            
+            guard let self else { return }
+            
+            switch result {
+            case .success(let imageResult):
+                self.configureImage(with: imageResult.image)
+                
+            case .failure(let error):
+                print("[SingleImageViewController.loadFullImage]: \(error)")
+                self.showError()
+            }
+        }
+    }
+    
+    private func showError() {
+        let alertController = UIAlertController(
+            title: "Что-то пошло не так",
+            message: "Попробовать ещё раз?",
+            preferredStyle: .alert
+        )
+        
+        let cancelAction = UIAlertAction(title: "Не надо", style: .cancel)
+        let retryAction = UIAlertAction(title: "Повторить", style: .default) { [weak self] _ in
+            self?.loadFullImage()
+        }
+        
+        alertController.addAction(cancelAction)
+        alertController.addAction(retryAction)
+
+        present(alertController, animated: true)
+        
+    }
     
     private func configureImage(with image: UIImage) {
         imageView.image = image
@@ -110,7 +146,8 @@ final class SingleImageViewController: UIViewController {
     }
     
     @objc private func didTapShareButton() {
-        guard let image else { return }
+        guard let image = imageView.image else { return }
+        
         let activityViewController = UIActivityViewController(
             activityItems: [image],
             applicationActivities: nil
