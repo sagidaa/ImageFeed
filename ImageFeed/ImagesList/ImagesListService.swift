@@ -63,18 +63,18 @@ final class ImagesListService {
             return
         }
         
-        let task = urlSession.objectTask(for: request) { [weak self] (result: Result<PhotoResult, Error>) in
+        let task = urlSession.objectTask(for: request) { [weak self] (result: Result<LikeResult, Error>) in
             guard let self else { return }
             
             switch result {
-            case .success(let photoResult):
+            case .success(let likeResult):
                 guard let index = self.photos.firstIndex(where: { $0.id == photoId }) else {
                     print("[ImagesListService.changeLike]: \(NetworkError.photoNotFound), photoId: \(photoId)")
                     completion(.failure(NetworkError.photoNotFound))
                     return
                 }
                                 
-                self.photos[index] = self.makePhotos(from: photoResult)
+                self.photos[index] = self.makePhotos(from: likeResult.photo)
                 
                 completion(.success(()))
                 

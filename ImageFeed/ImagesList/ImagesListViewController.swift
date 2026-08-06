@@ -128,13 +128,17 @@ final class ImagesListViewController: UIViewController {
         
         photos = imagesListService.photos
         
-        if oldCount != newCount {
+        guard oldCount != newCount else { return }
+        
+        if newCount > oldCount {
             tableView.performBatchUpdates {
                 let indexPaths = (oldCount..<newCount).map { i in
                     IndexPath(row: i, section: 0)
                 }
                 tableView.insertRows(at: indexPaths, with: .automatic)
             } completion: { _ in }
+        } else {
+            tableView.reloadData()
         }
     }
     
@@ -218,11 +222,11 @@ extension ImagesListViewController: ImagesListCellDelegate {
     func imageListCellDidTapLike(_ cell: ImagesListCell) {
         guard let indexPath = tableView.indexPath(for: cell) else { return }
         let photo = photos[indexPath.row]
+        let newLikeState = !photo.isLiked
         
-        UIBlockingProgressHUD.show()
+        cell.setIsLiked(newLikeState)
         
-        imagesListService.changeLike(photoId: photo.id, isLike: !photo.isLiked) { [weak self] result in
-            UIBlockingProgressHUD.dismiss()
+        imagesListService.changeLike(photoId: photo.id, isLike: newLikeState) { [weak self, weak cell] result in
             
             guard let self else { return }
             
@@ -230,12 +234,9 @@ extension ImagesListViewController: ImagesListCellDelegate {
             case .success:
                 self.photos = self.imagesListService.photos
                 
-                guard indexPath.row < self.photos.count else { return }
-                
-                self.tableView.reloadRows(at: [indexPath], with: .none)
-                
             case .failure(let error):
                 print("[ImagesListViewController.imageListCellDidTapLike]: \(error)")
+                cell?.setIsLiked(!newLikeState)
                 self.showLikeErrorAlert()
             }
         }
