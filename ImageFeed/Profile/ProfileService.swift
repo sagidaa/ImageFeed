@@ -49,6 +49,10 @@ final class ProfileService {
         newTask?.resume()
     }
     
+    func clean() {
+        profile = nil
+    }
+    
     private func makeProfileRequest(token: String) -> URLRequest? {
         guard let profileUrl = URL(string: APIConstants.profileURL) else {
             return nil

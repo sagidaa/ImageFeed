@@ -84,6 +84,18 @@ final class ProfileViewController: UIViewController {
             : profile.bio
     }
     
+    private func switchToSplashViewController() {
+        guard let window = UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene })
+            .flatMap({ $0.windows })
+            .first(where: { $0.isKeyWindow }) else {
+            print("Failed to get key window")
+            return
+        }
+        
+        window.rootViewController = SplashViewController()
+    }
+    
     private func setupViews() {
         view.backgroundColor = .ypBlack
         
@@ -95,7 +107,7 @@ final class ProfileViewController: UIViewController {
         let image = UIImage(resource: .logoutButton)
         logoutButton.setImage(image, for: .normal)
         logoutButton.tintColor = .ypRed
-        logoutButton.addTarget(self, action: #selector(logoutTapped), for: .touchUpInside)
+        logoutButton.addTarget(self, action: #selector(logoutButtonTapped), for: .touchUpInside)
         
         nameLabel.font = .systemFont(ofSize: LayoutConstants.nameFontSize, weight: .bold)
         nameLabel.textColor = .ypWhite
@@ -141,7 +153,8 @@ final class ProfileViewController: UIViewController {
     
     // MARK: - Actions
     
-    @objc private func logoutTapped() {
-        print("logout")
+    @objc private func logoutButtonTapped() {
+        ProfileLogoutService.shared.logout()
+        switchToSplashViewController()
     }
 }
