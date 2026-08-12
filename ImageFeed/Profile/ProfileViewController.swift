@@ -96,6 +96,30 @@ final class ProfileViewController: UIViewController {
         window.rootViewController = SplashViewController()
     }
     
+    private func showLogoutAlert() {
+        let alertController = UIAlertController(
+            title: "Пока, пока!",
+            message: "Уверены, что хотите выйти?",
+            preferredStyle: .alert
+        )
+        
+        let yesAction = UIAlertAction(title: "Да", style: .default) { [weak self] _ in
+            guard let self else { return }
+            
+            ProfileLogoutService.shared.logout()
+            switchToSplashViewController()
+        }
+        
+        let noAction = UIAlertAction(title: "Нет", style: .default)
+        
+        alertController.addAction(yesAction)
+        alertController.addAction(noAction)
+        
+        alertController.preferredAction = noAction
+        
+        present(alertController, animated: true)
+    }
+    
     private func setupViews() {
         view.backgroundColor = .ypBlack
         
@@ -154,7 +178,6 @@ final class ProfileViewController: UIViewController {
     // MARK: - Actions
     
     @objc private func logoutButtonTapped() {
-        ProfileLogoutService.shared.logout()
-        switchToSplashViewController()
+        showLogoutAlert()
     }
 }
