@@ -26,6 +26,8 @@ final class SingleImageViewController: UIViewController {
     
     var fullImageURL: URL?
     
+    private var didStartLoading = false
+    
     private let scrollView = UIScrollView()
     private let imageView = UIImageView()
     private let backButton = UIButton()
@@ -38,6 +40,14 @@ final class SingleImageViewController: UIViewController {
         
         setupViews()
         setupConstraints()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        guard !didStartLoading else { return }
+        didStartLoading = true
+        
         loadFullImage()
     }
     
@@ -45,6 +55,7 @@ final class SingleImageViewController: UIViewController {
     
     private func loadFullImage() {
         guard let fullImageURL else {
+            didStartLoading = false
             showError()
             return
         }
@@ -61,6 +72,7 @@ final class SingleImageViewController: UIViewController {
                 self.configureImage(with: imageResult.image)
                 
             case .failure(let error):
+                self.didStartLoading = false
                 print("[SingleImageViewController.loadFullImage]: \(error)")
                 self.showError()
             }
