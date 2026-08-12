@@ -64,7 +64,6 @@ extension URLSession {
     ) -> URLSessionTask {
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
-        decoder.dateDecodingStrategy = .iso8601
         
         let task = data(for: request) { (result: Result<Data, Error>) in
             switch result {

@@ -22,7 +22,7 @@ final class ImagesListViewController: UIViewController {
     
     private let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
-        formatter.dateStyle = .long
+        formatter.dateStyle = .medium
         formatter.timeStyle = .none
         return formatter
     }()
@@ -104,7 +104,7 @@ final class ImagesListViewController: UIViewController {
         let photo = photos[indexPath.row]
         
         guard let fullImageURL = URL(string: photo.largeImageURL) else {
-            print("[ImagesListViewController.imageListCellDidTapLike]: \(NetworkError.invalidRequest)")
+            print("[ImagesListViewController.presentSingleImageViewController]: \(NetworkError.invalidRequest)")
             return
         }
         
@@ -228,8 +228,10 @@ extension ImagesListViewController: ImagesListCellDelegate {
         let newLikeState = !photo.isLiked
         
         cell.setIsLiked(newLikeState)
+        UIBlockingProgressHUD.show()
         
         imagesListService.changeLike(photoId: photo.id, isLike: newLikeState) { [weak self, weak cell] result in
+            UIBlockingProgressHUD.dismiss()
             
             guard let self else { return }
             
@@ -238,7 +240,7 @@ extension ImagesListViewController: ImagesListCellDelegate {
                 self.photos = self.imagesListService.photos
                 
             case .failure(let error):
-                print("[ImagesListViewController.imageListCellDidTapLike]: \(error)")
+                print("[ImagesListViewController.imageListCellDidTapLike]: \(error), photoId: \(photo.id)")
                 cell?.setIsLiked(!newLikeState)
                 self.showLikeErrorAlert()
             }

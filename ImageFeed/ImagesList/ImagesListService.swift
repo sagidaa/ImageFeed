@@ -17,6 +17,7 @@ final class ImagesListService {
     private let urlSession = URLSession.shared
     private var task: URLSessionTask?
     private var lastLoadedPage: Int?
+    private let iso8601DateFormatter = ISO8601DateFormatter()
     
     private(set) var photos: [Photo] = []
     
@@ -120,10 +121,14 @@ final class ImagesListService {
     }
     
     private func makePhotos(from result: PhotoResult) -> Photo {
-        Photo(
+        let createdAt = result.createdAt.flatMap {
+                iso8601DateFormatter.date(from: $0)
+            }
+        
+        return Photo(
             id: result.id,
             size: CGSize(width: result.width, height: result.height),
-            createdAt: result.createdAt,
+            createdAt: createdAt,
             welcomeDescription: result.description,
             thumbImageURL: result.urls.thumb,
             largeImageURL: result.urls.full,
