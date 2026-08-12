@@ -32,6 +32,12 @@ final class ImagesListCell: UITableViewCell {
     private lazy var dateLabel = UILabel()
     private lazy var likeButton = UIButton()
     
+    private lazy var imageSkeletonView: GradientSkeletonView = {
+        let view = GradientSkeletonView()
+        view.layer.cornerRadius = LayoutConstants.cornerRadius
+        return view
+    }()
+    
     // MARK: - Lifecycle
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -53,6 +59,12 @@ final class ImagesListCell: UITableViewCell {
         fullSizeImageView.image = nil
         dateLabel.text = nil
         likeButton.setImage(nil, for: .normal)
+        
+        imageSkeletonView.stopAnimating()
+        
+        [imageSkeletonView, gradientView, dateLabel, likeButton].forEach {
+            $0.isHidden = true
+        }
     }
     
     // MARK: - Configuration
@@ -61,9 +73,20 @@ final class ImagesListCell: UITableViewCell {
         dateLabel.text = date
         setIsLiked(isLiked)
         
-        fullSizeImageView.kf.setImage(with: imageURL, placeholder: placeholder) { result in
-            guard case .success = result else { return }
-            completion()
+        setImageState(.loading)
+        
+        fullSizeImageView.kf.setImage(with: imageURL, placeholder: placeholder) { [weak self] result in
+            guard let self else { return }
+            
+            switch result {
+            case .success(let imageResult):
+                setImageState(.finished(imageResult.image))
+                completion()
+                
+            case .failure:
+                setImageState(.error)
+                fullSizeImageView.image = placeholder
+            }
         }
     }
     
@@ -73,6 +96,35 @@ final class ImagesListCell: UITableViewCell {
     }
     
     // MARK: - Private Methods
+    
+    private func setImageState(_ state: FeedCellImageState) {
+        switch state {
+        case .loading:
+            imageSkeletonView.isHidden = false
+            imageSkeletonView.startAnimating()
+            
+            [gradientView, dateLabel, likeButton].forEach {
+                $0.isHidden = true
+            }
+            
+        case .error:
+            imageSkeletonView.stopAnimating()
+            imageSkeletonView.isHidden = true
+            
+            [gradientView, dateLabel, likeButton].forEach {
+                $0.isHidden = false
+            }
+            
+        case .finished(let image):
+            imageSkeletonView.stopAnimating()
+            imageSkeletonView.isHidden = true
+            fullSizeImageView.image = image
+            
+            [gradientView, dateLabel, likeButton].forEach {
+                $0.isHidden = false
+            }
+        }
+    }
     
     @objc private func likeButtonClicked() {
         delegate?.imageListCellDidTapLike(self)
@@ -96,8 +148,7 @@ final class ImagesListCell: UITableViewCell {
         
         likeButton.addTarget(self, action: #selector(likeButtonClicked), for: .touchUpInside)
         
-        
-        [fullSizeImageView, gradientView, dateLabel, likeButton].forEach {
+        [fullSizeImageView, imageSkeletonView, gradientView, dateLabel, likeButton].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
             contentView.addSubview($0)
         }
@@ -109,6 +160,11 @@ final class ImagesListCell: UITableViewCell {
             fullSizeImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: LayoutConstants.horizontalInset),
             fullSizeImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -LayoutConstants.horizontalInset),
             fullSizeImageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -LayoutConstants.verticalInset),
+            
+            imageSkeletonView.topAnchor.constraint(equalTo: fullSizeImageView.topAnchor),
+            imageSkeletonView.leadingAnchor.constraint(equalTo: fullSizeImageView.leadingAnchor),
+            imageSkeletonView.trailingAnchor.constraint(equalTo: fullSizeImageView.trailingAnchor),
+            imageSkeletonView.bottomAnchor.constraint(equalTo: fullSizeImageView.bottomAnchor),
             
             gradientView.heightAnchor.constraint(equalToConstant: LayoutConstants.gradientHeight),
             gradientView.leadingAnchor.constraint(equalTo: fullSizeImageView.leadingAnchor),
