@@ -10,6 +10,9 @@ import WebKit
 import Kingfisher
 
 final class ProfileLogoutService {
+    
+    // MARK: - Properties
+
     static let shared = ProfileLogoutService()
     private init() {}
     
@@ -18,7 +21,8 @@ final class ProfileLogoutService {
     private let profileImageService = ProfileImageService.shared
     private let imagesListService = ImagesListService.shared
     
-    
+    // MARK: - Public Methods
+
     func logout() {
         tokenStorage.token = nil
         
@@ -31,7 +35,9 @@ final class ProfileLogoutService {
         ImageCache.default.clearMemoryCache()
         ImageCache.default.clearDiskCache()
     }
-    
+
+    // MARK: - Private Methods
+
     private func cleanCookies() {
         HTTPCookieStorage.shared.removeCookies(since: Date.distantPast)
         

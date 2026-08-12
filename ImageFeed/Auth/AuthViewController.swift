@@ -97,6 +97,8 @@ final class AuthViewController: UIViewController {
         present(alertController, animated: true)
     }
     
+    // MARK: - Actions
+    
     @objc private func didTapLoginButton() {
         let webViewViewController = WebViewViewController()
         webViewViewController.delegate = self

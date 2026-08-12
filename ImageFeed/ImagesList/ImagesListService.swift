@@ -9,6 +9,8 @@ import UIKit
 
 final class ImagesListService {
     
+    // MARK: - Properties
+
     static let shared = ImagesListService()
     private init() {}
     
@@ -20,7 +22,9 @@ final class ImagesListService {
     private let iso8601DateFormatter = ISO8601DateFormatter()
     
     private(set) var photos: [Photo] = []
-    
+
+    // MARK: - Public Methods
+
     func fetchPhotosNextPage() {
         assert(Thread.isMainThread)
         
@@ -95,7 +99,9 @@ final class ImagesListService {
         photos = []
         lastLoadedPage = nil
     }
-    
+
+    // MARK: - Private Methods
+
     private func makePhotosRequest(page: Int) -> URLRequest? {
         guard
             let token = OAuth2TokenStorage.shared.token,

@@ -9,10 +9,7 @@ import UIKit
 import Kingfisher
 
 final class ImagesListCell: UITableViewCell {
-    
-    static let reuseIdentifier = "ImagesListCell"
-    weak var delegate: ImagesListCellDelegate?
-    
+
     // MARK: - Constants
     
     private enum LayoutConstants {
@@ -25,7 +22,10 @@ final class ImagesListCell: UITableViewCell {
         static let gradientHeight: CGFloat = 30
     }
     
-    // MARK: - UI Elements
+    // MARK: - Properties
+    
+    static let reuseIdentifier = "ImagesListCell"
+    weak var delegate: ImagesListCellDelegate?
     
     private lazy var fullSizeImageView = UIImageView()
     private lazy var gradientView = UIImageView()
@@ -126,10 +126,6 @@ final class ImagesListCell: UITableViewCell {
         }
     }
     
-    @objc private func likeButtonClicked() {
-        delegate?.imageListCellDidTapLike(self)
-    }
-    
     private func setupViews() {
         selectionStyle = .none
         backgroundColor = .ypBlack
@@ -180,5 +176,11 @@ final class ImagesListCell: UITableViewCell {
             likeButton.topAnchor.constraint(equalTo: fullSizeImageView.topAnchor),
             likeButton.trailingAnchor.constraint(equalTo: fullSizeImageView.trailingAnchor)
         ])
+    }
+    
+    // MARK: - Actions
+    
+    @objc private func likeButtonClicked() {
+        delegate?.imageListCellDidTapLike(self)
     }
 }

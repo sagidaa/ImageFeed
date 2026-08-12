@@ -8,13 +8,18 @@
 import Foundation
 
 final class ProfileService {
+    
+    // MARK: - Properties
+    
     static let shared = ProfileService()
     private init() {}
     
     private let urlSession = URLSession.shared
     private var task: URLSessionTask?
     private(set) var profile: Profile?
-    
+
+    // MARK: - Public Methods
+
     func fetchProfile(_ token: String, completion: @escaping (Result<Profile, Error>) -> Void) {
         assert(Thread.isMainThread)
         
@@ -52,7 +57,9 @@ final class ProfileService {
     func clean() {
         profile = nil
     }
-    
+
+    // MARK: - Private Methods
+
     private func makeProfileRequest(token: String) -> URLRequest? {
         guard let profileUrl = URL(string: APIConstants.profileURL) else {
             return nil

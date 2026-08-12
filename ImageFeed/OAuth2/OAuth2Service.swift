@@ -9,6 +9,9 @@ import Foundation
 
 
 final class OAuth2Service {
+    
+    // MARK: - Properties
+
     static let shared = OAuth2Service()
     private init() { }
     
@@ -18,6 +21,8 @@ final class OAuth2Service {
     private var task: URLSessionTask?
     private var lastCode: String?
     
+    // MARK: - Public Methods
+
     func fetchOAuthToken(_ code: String, completion: @escaping (Result<String, Error>) -> Void) {
         assert(Thread.isMainThread)
         
@@ -54,6 +59,8 @@ final class OAuth2Service {
         
         task?.resume()
     }
+    
+    // MARK: - Private Methods
     
     private func makeOAuthTokenRequest(code: String) -> URLRequest? {
         guard var urlComponents = URLComponents(string: APIConstants.unsplashOAuthTokenURLString) else {

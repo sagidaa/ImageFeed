@@ -9,6 +9,8 @@ import Foundation
 
 final class ProfileImageService {
     
+    // MARK: - Properties
+
     static let shared = ProfileImageService()
     private init() {}
     
@@ -18,6 +20,8 @@ final class ProfileImageService {
     private var task: URLSessionTask?
     
     private(set) var avatarURL: String?
+
+    // MARK: - Public Methods
     
     func fetchProfileImageURL(username: String, _ completion: @escaping (Result<String, Error>) -> Void) {
         assert(Thread.isMainThread)
@@ -70,7 +74,9 @@ final class ProfileImageService {
     func clean() {
         avatarURL = nil
     }
-    
+
+    // MARK: - Private Methods
+
     private func makeProfileImageRequest(username: String, token: String) -> URLRequest? {
         guard let profileImageUrl = URL(string: "\(APIConstants.usersURL)/\(username)") else {
             return nil
