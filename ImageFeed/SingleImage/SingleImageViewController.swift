@@ -7,6 +7,7 @@
 
 import UIKit
 import Kingfisher
+import OSLog
 
 final class SingleImageViewController: UIViewController {
     
@@ -56,6 +57,7 @@ final class SingleImageViewController: UIViewController {
     private func loadFullImage() {
         guard let fullImageURL else {
             didStartLoading = false
+            Logger.networking.error("Full-size image URL is missing")
             showError()
             return
         }
@@ -73,7 +75,7 @@ final class SingleImageViewController: UIViewController {
                 
             case .failure(let error):
                 self.didStartLoading = false
-                print("[SingleImageViewController.loadFullImage]: \(error)")
+                Logger.networking.error("Failed to load full size image: \(error.localizedDescription)")
                 self.showError()
             }
         }

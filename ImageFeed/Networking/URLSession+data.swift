@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import OSLog
 
 extension URLSession {
     func data(
@@ -29,25 +30,20 @@ extension URLSession {
                     let error = NetworkError.httpStatusCode(statusCode)
                     let responseBody = String(data: data, encoding: .utf8) ?? ""
                     
-                    print("[URLSession.data]: \(NetworkError.httpStatusCode(statusCode)), " +
-                          "statusCode: \(statusCode), " +
-                          "request: \(request.url?.absoluteString ?? "unknown"), " +
-                          "data: \(responseBody)")
+                    Logger.networking.error("Request failed with HTTP status code \(statusCode)")
                     
                     fulfillCompletionOnTheMainThread(.failure(error))
                 }
             } else if let error = error {
                 let networkError = NetworkError.urlRequestError(error)
                 
-                print("[URLSession.data]: \(networkError.localizedDescription), " +
-                    "request: \(request.url?.absoluteString ?? "")")
+                Logger.networking.error("URL request failed: \(error.localizedDescription)")
                 
                 fulfillCompletionOnTheMainThread(.failure(networkError))
             } else {
                 let error = NetworkError.urlSessionError
                 
-                print("[URLSession.data]: \(error.localizedDescription), " +
-                      "request: \(request.url?.absoluteString ?? "")")
+                Logger.networking.error("URLSession completed without data, response, or error")
                 
                 fulfillCompletionOnTheMainThread(.failure(error))
             }
@@ -74,14 +70,12 @@ extension URLSession {
                 } catch {
                     let responseBody = String(data: data, encoding: .utf8) ?? ""
 
-                    print("[URLSession.objectTask]: DecodingError - " +
-                          "\(error.localizedDescription), data: \(responseBody)")
+                    Logger.networking.error("Failed to decode server response: \(error.localizedDescription)")
                     
                     completion(.failure(NetworkError.decodingError(error)))
                 }
                 
             case .failure(let error):
-                print("[URLSession.objectTask]: \(error)")
                 completion(.failure(error))
             }
         }

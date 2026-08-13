@@ -8,6 +8,7 @@
 import UIKit
 import Kingfisher
 import ProgressHUD
+import OSLog
 
 final class ImagesListViewController: UIViewController {
     
@@ -16,6 +17,7 @@ final class ImagesListViewController: UIViewController {
     private enum LayoutConstants {
         static let horizontalInset: CGFloat = 16
         static let verticalInset: CGFloat = 4
+        static let fallbackCellHeight: CGFloat = 44
     }
     
     // MARK: - Properties
@@ -73,7 +75,7 @@ final class ImagesListViewController: UIViewController {
         guard indexPath.row < photos.count else { return }
         
         let photo = photos[indexPath.row]
-        let imageUrl = URL(string: photo.thumbImageURL)
+        let imageUrl = URL(string: photo.thumbImageURLString)
         
         let dateText: String
         if let createdAt = photo.createdAt {
@@ -103,8 +105,8 @@ final class ImagesListViewController: UIViewController {
         
         let photo = photos[indexPath.row]
         
-        guard let fullImageURL = URL(string: photo.largeImageURL) else {
-            print("[ImagesListViewController.presentSingleImageViewController]: \(NetworkError.invalidRequest)")
+        guard let fullImageURL = URL(string: photo.largeImageURLString) else {
+            Logger.networking.error("Failed to create full image URL")
             return
         }
         
@@ -191,13 +193,13 @@ extension ImagesListViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         guard indexPath.row < photos.count else {
-            return 44
+            return LayoutConstants.fallbackCellHeight
         }
         
         let photo = photos[indexPath.row]
         
         guard photo.size.width > 0 else {
-            return 44
+            return LayoutConstants.fallbackCellHeight
         }
         
         let imageInsets = UIEdgeInsets(top: LayoutConstants.verticalInset, left: LayoutConstants.horizontalInset, bottom: LayoutConstants.verticalInset, right: LayoutConstants.horizontalInset)
@@ -240,7 +242,7 @@ extension ImagesListViewController: ImagesListCellDelegate {
                 self.photos = self.imagesListService.photos
                 
             case .failure(let error):
-                print("[ImagesListViewController.imageListCellDidTapLike]: \(error), photoId: \(photo.id)")
+                Logger.networking.error("Failed to update like for photo \(photo.id): \(error.localizedDescription)")
                 cell?.setIsLiked(!newLikeState)
                 self.showLikeErrorAlert()
             }

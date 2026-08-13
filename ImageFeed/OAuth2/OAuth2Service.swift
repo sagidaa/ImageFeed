@@ -6,7 +6,7 @@
 //
 
 import Foundation
-
+import OSLog
 
 final class OAuth2Service {
     
@@ -47,7 +47,7 @@ final class OAuth2Service {
                 completion(.success(responseBody.accessToken))
                 
             case .failure(let error):
-                print("[OAuth2Service.fetchOAuthToken]: \(error), code: \(code)")
+                Logger.authorization.error("Failed to fetch OAuth token")
                 completion(.failure(error))
             }
             
@@ -64,7 +64,7 @@ final class OAuth2Service {
     
     private func makeOAuthTokenRequest(code: String) -> URLRequest? {
         guard var urlComponents = URLComponents(string: APIConstants.unsplashOAuthTokenURLString) else {
-            print("[OAuth2Service.makeOAuthTokenRequest]: invalid URLComponents, code: \(code)")
+            Logger.authorization.error("Failed to create URL components for OAuth token request")
             return nil
         }
         
@@ -77,7 +77,7 @@ final class OAuth2Service {
         ]
         
         guard let authTokenUrl = urlComponents.url else {
-            print("[OAuth2Service.makeOAuthTokenRequest]: failed to create URL")
+            Logger.authorization.error("Failed to create URL for OAuth token request")
             return nil
         }
         

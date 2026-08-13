@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import OSLog
 
 final class ProfileImageService {
     
@@ -30,13 +31,13 @@ final class ProfileImageService {
         task = nil
         
         guard let token = OAuth2TokenStorage.shared.token else {
-            print("[ProfileImageService.fetchProfileImageURL]: \(NetworkError.missingToken), username: \(username)")
+            Logger.authorization.error("Failed to fetch profile image: OAuth token is missing")
             completion(.failure(NetworkError.missingToken))
             return
         }
         
         guard let request = makeProfileImageRequest(username: username, token: token) else {
-            print("[ProfileImageService.fetchProfileImageURL]: \(NetworkError.invalidRequest), failed to create request, username: \(username)")
+            Logger.networking.error("Failed to create profile image request")
             completion(.failure(NetworkError.invalidRequest))
             return
         }
@@ -62,7 +63,7 @@ final class ProfileImageService {
                 )
                 
             case .failure(let error):
-                print( "[ProfileImageService.fetchProfileImageURL]: \(error), username: \(username)")
+                Logger.networking.error("Failed to fetch profile image: \(error.localizedDescription)")
                 completion(.failure(error))
             }
         }

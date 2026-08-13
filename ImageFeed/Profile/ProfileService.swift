@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import OSLog
 
 final class ProfileService {
     
@@ -26,7 +27,7 @@ final class ProfileService {
         task?.cancel()
         
         guard let request = makeProfileRequest(token: token) else {
-            print("[ProfileService.fetchProfile]: \(NetworkError.invalidRequest), failed to create request")
+            Logger.networking.error("Failed to create profile request")
             completion(.failure(NetworkError.invalidRequest))
             return
         }
@@ -45,7 +46,7 @@ final class ProfileService {
                 completion(.success(profile))
                 
             case .failure(let error):
-                print("[ProfileService.fetchProfile]: \(error), request: \(request.url?.absoluteString ?? "unknown")")
+                Logger.networking.error("Failed to fetch profile \(error.localizedDescription)")
                 completion(.failure(error))
             }
         }

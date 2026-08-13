@@ -7,6 +7,7 @@
 
 import UIKit
 import WebKit
+import OSLog
 
 final class WebViewViewController: UIViewController {
        
@@ -74,7 +75,7 @@ final class WebViewViewController: UIViewController {
     
     private func loadAuthView() {
         guard var urlComponents = URLComponents(string: APIConstants.unsplashAuthorizeURLString) else {
-            print("[WebViewViewController.loadAuthView]: failed to create URLComponents")
+            Logger.authorization.error("Failed to create URLComponents")
             return
         }
         
@@ -86,7 +87,7 @@ final class WebViewViewController: UIViewController {
         ]
         
         guard let url = urlComponents.url else {
-            print("[WebViewViewController.loadAuthView]: failed to create authorization URL")
+            Logger.authorization.error("Failed to create authorization URL")
             return
         }
         
