@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import OSLog
 
 final class SplashViewController: UIViewController {
     
@@ -80,7 +81,7 @@ final class SplashViewController: UIViewController {
                 self.switchToTabBarController()
                 
             case .failure(let error):
-                print("[SplashViewController.fetchProfile]: \(error)")
+                Logger.networking.error("Failed to load profile during app launch: \(error.localizedDescription)")
             }
         }
     }

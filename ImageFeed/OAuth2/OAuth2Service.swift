@@ -6,9 +6,12 @@
 //
 
 import Foundation
-
+import OSLog
 
 final class OAuth2Service {
+    
+    // MARK: - Properties
+
     static let shared = OAuth2Service()
     private init() { }
     
@@ -18,6 +21,8 @@ final class OAuth2Service {
     private var task: URLSessionTask?
     private var lastCode: String?
     
+    // MARK: - Public Methods
+
     func fetchOAuthToken(_ code: String, completion: @escaping (Result<String, Error>) -> Void) {
         assert(Thread.isMainThread)
         
@@ -42,7 +47,7 @@ final class OAuth2Service {
                 completion(.success(responseBody.accessToken))
                 
             case .failure(let error):
-                print("[OAuth2Service.fetchOAuthToken]: \(error), code: \(code)")
+                Logger.authorization.error("Failed to fetch OAuth token")
                 completion(.failure(error))
             }
             
@@ -55,9 +60,11 @@ final class OAuth2Service {
         task?.resume()
     }
     
+    // MARK: - Private Methods
+    
     private func makeOAuthTokenRequest(code: String) -> URLRequest? {
         guard var urlComponents = URLComponents(string: APIConstants.unsplashOAuthTokenURLString) else {
-            print("[OAuth2Service.makeOAuthTokenRequest]: invalid URLComponents, code: \(code)")
+            Logger.authorization.error("Failed to create URL components for OAuth token request")
             return nil
         }
         
@@ -70,7 +77,7 @@ final class OAuth2Service {
         ]
         
         guard let authTokenUrl = urlComponents.url else {
-            print("[OAuth2Service.makeOAuthTokenRequest]: failed to create URL")
+            Logger.authorization.error("Failed to create URL for OAuth token request")
             return nil
         }
         

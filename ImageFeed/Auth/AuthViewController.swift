@@ -7,6 +7,7 @@
 
 import UIKit
 import ProgressHUD
+import OSLog
 
 final class AuthViewController: UIViewController {
     
@@ -97,6 +98,8 @@ final class AuthViewController: UIViewController {
         present(alertController, animated: true)
     }
     
+    // MARK: - Actions
+    
     @objc private func didTapLoginButton() {
         let webViewViewController = WebViewViewController()
         webViewViewController.delegate = self
@@ -122,7 +125,7 @@ extension AuthViewController: WebViewViewControllerDelegate {
                 self.delegate?.didAuthenticate(self)
                 
             case .failure(let error):
-                print("[AuthViewController.didAuthenticateWithCode]: \(error)")
+                Logger.authorization.error("Failed to fetch OAuth token: \(error.localizedDescription)")
                 self.showAuthErrorAlert()
             }
         }

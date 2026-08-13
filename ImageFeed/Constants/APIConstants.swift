@@ -13,4 +13,5 @@ enum APIConstants {
     
     static let profileURL = "https://api.unsplash.com/me"
     static let usersURL = "https://api.unsplash.com/users"
+    static let photosURL = "https://api.unsplash.com/photos"
 }

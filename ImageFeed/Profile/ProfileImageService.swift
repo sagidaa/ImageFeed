@@ -6,9 +6,12 @@
 //
 
 import Foundation
+import OSLog
 
 final class ProfileImageService {
     
+    // MARK: - Properties
+
     static let shared = ProfileImageService()
     private init() {}
     
@@ -18,6 +21,8 @@ final class ProfileImageService {
     private var task: URLSessionTask?
     
     private(set) var avatarURL: String?
+
+    // MARK: - Public Methods
     
     func fetchProfileImageURL(username: String, _ completion: @escaping (Result<String, Error>) -> Void) {
         assert(Thread.isMainThread)
@@ -26,13 +31,13 @@ final class ProfileImageService {
         task = nil
         
         guard let token = OAuth2TokenStorage.shared.token else {
-            print("[ProfileImageService.fetchProfileImageURL]: \(NetworkError.missingToken), username: \(username)")
+            Logger.authorization.error("Failed to fetch profile image: OAuth token is missing")
             completion(.failure(NetworkError.missingToken))
             return
         }
         
         guard let request = makeProfileImageRequest(username: username, token: token) else {
-            print("[ProfileImageService.fetchProfileImageURL]: \(NetworkError.invalidRequest), failed to create request, username: \(username)")
+            Logger.networking.error("Failed to create profile image request")
             completion(.failure(NetworkError.invalidRequest))
             return
         }
@@ -58,7 +63,7 @@ final class ProfileImageService {
                 )
                 
             case .failure(let error):
-                print( "[ProfileImageService.fetchProfileImageURL]: \(error), username: \(username)")
+                Logger.networking.error("Failed to fetch profile image: \(error.localizedDescription)")
                 completion(.failure(error))
             }
         }
@@ -67,6 +72,12 @@ final class ProfileImageService {
         newTask?.resume()
     }
     
+    func clean() {
+        avatarURL = nil
+    }
+
+    // MARK: - Private Methods
+
     private func makeProfileImageRequest(username: String, token: String) -> URLRequest? {
         guard let profileImageUrl = URL(string: "\(APIConstants.usersURL)/\(username)") else {
             return nil
