@@ -21,8 +21,11 @@ final class ProfileViewController: UIViewController {
         static let topInset: CGFloat = 32
         static let spacing: CGFloat = 8
         static let buttonSize: CGFloat = 44
-        
-        static let skeletonCornerRadius: CGFloat = 9
+
+        static let skeletonHeight: CGFloat = 18
+        static let nameSkeletonWidth: CGFloat = 223
+        static let loginSkeletonWidth: CGFloat = 89
+        static let descriptionSkeletonWidth: CGFloat = 67
     }
     
     // MARK: - Properties
@@ -60,8 +63,13 @@ final class ProfileViewController: UIViewController {
             self.updateAvatar()
         }
         
+//        if let profile = profileService.profile {
+//            updateProfileDetails(with: profile)
+//        }
         if let profile = profileService.profile {
-            updateProfileDetails(with: profile)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in
+                self?.updateProfileDetails(with: profile)
+            }
         }
         updateAvatar()
     }
@@ -176,7 +184,8 @@ final class ProfileViewController: UIViewController {
         descriptionLabel.numberOfLines = 0
         
         [nameSkeletonView, loginSkeletonView, descriptionSkeletonView].forEach {
-            $0.layer.cornerRadius = LayoutConstants.skeletonCornerRadius
+            $0.layer.cornerRadius = LayoutConstants.skeletonHeight / 2
+            $0.clipsToBounds = true
         }
         
         [avatarImageView, logoutButton, nameLabel, loginNameLabel, descriptionLabel,
@@ -205,31 +214,30 @@ final class ProfileViewController: UIViewController {
             
             nameLabel.topAnchor.constraint(equalTo: avatarImageView.bottomAnchor, constant: LayoutConstants.spacing),
             nameLabel.leadingAnchor.constraint(equalTo: avatarImageView.leadingAnchor),
-            nameLabel.trailingAnchor.constraint(equalTo: logoutButton.trailingAnchor),
-            
-            nameSkeletonView.topAnchor.constraint(equalTo: nameLabel.topAnchor),
-            nameSkeletonView.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
-            nameSkeletonView.trailingAnchor.constraint(lessThanOrEqualTo: nameLabel.trailingAnchor),
-            nameSkeletonView.heightAnchor.constraint(equalToConstant: LayoutConstants.nameFontSize + 4),
-            nameSkeletonView.widthAnchor.constraint(equalToConstant: 200),
-            
+            nameLabel.trailingAnchor.constraint(lessThanOrEqualTo: logoutButton.leadingAnchor, constant: -LayoutConstants.spacing),
+
             loginNameLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: LayoutConstants.spacing),
-            loginNameLabel.leadingAnchor.constraint(equalTo: avatarImageView.leadingAnchor),
-            loginNameLabel.trailingAnchor.constraint(equalTo: logoutButton.trailingAnchor),
-            
-            loginSkeletonView.topAnchor.constraint(equalTo: loginNameLabel.topAnchor),
-            loginSkeletonView.leadingAnchor.constraint(equalTo: loginNameLabel.leadingAnchor),
-            loginSkeletonView.heightAnchor.constraint(equalToConstant: LayoutConstants.secondaryFontSize + 4),
-            loginSkeletonView.widthAnchor.constraint(equalToConstant: 100),
-            
+            loginNameLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
+            loginNameLabel.trailingAnchor.constraint(equalTo: nameLabel.trailingAnchor),
+
             descriptionLabel.topAnchor.constraint(equalTo: loginNameLabel.bottomAnchor, constant: LayoutConstants.spacing),
-            descriptionLabel.leadingAnchor.constraint(equalTo: avatarImageView.leadingAnchor),
-            descriptionLabel.trailingAnchor.constraint(equalTo: logoutButton.trailingAnchor),
-            
-            descriptionSkeletonView.topAnchor.constraint(equalTo: descriptionLabel.topAnchor),
-            descriptionSkeletonView.leadingAnchor.constraint(equalTo: descriptionLabel.leadingAnchor),
-            descriptionSkeletonView.heightAnchor.constraint(equalToConstant: LayoutConstants.secondaryFontSize + 4),
-            descriptionSkeletonView.widthAnchor.constraint(equalToConstant: 150)
+            descriptionLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
+            descriptionLabel.trailingAnchor.constraint(equalTo: nameLabel.trailingAnchor),
+
+            nameSkeletonView.topAnchor.constraint(equalTo: avatarSkeletonView.bottomAnchor, constant: LayoutConstants.spacing),
+            nameSkeletonView.leadingAnchor.constraint(equalTo: avatarSkeletonView.leadingAnchor),
+            nameSkeletonView.widthAnchor.constraint(equalToConstant: LayoutConstants.nameSkeletonWidth),
+            nameSkeletonView.heightAnchor.constraint(equalToConstant: LayoutConstants.skeletonHeight),
+
+            loginSkeletonView.topAnchor.constraint(equalTo: nameSkeletonView.bottomAnchor, constant: LayoutConstants.spacing),
+            loginSkeletonView.leadingAnchor.constraint(equalTo: nameSkeletonView.leadingAnchor),
+            loginSkeletonView.widthAnchor.constraint(equalToConstant: LayoutConstants.loginSkeletonWidth),
+            loginSkeletonView.heightAnchor.constraint(equalToConstant: LayoutConstants.skeletonHeight),
+
+            descriptionSkeletonView.topAnchor.constraint(equalTo: loginSkeletonView.bottomAnchor, constant: LayoutConstants.spacing),
+            descriptionSkeletonView.leadingAnchor.constraint(equalTo: nameSkeletonView.leadingAnchor),
+            descriptionSkeletonView.widthAnchor.constraint(equalToConstant: LayoutConstants.descriptionSkeletonWidth),
+            descriptionSkeletonView.heightAnchor.constraint(equalToConstant: LayoutConstants.skeletonHeight)
         ])
     }
     
