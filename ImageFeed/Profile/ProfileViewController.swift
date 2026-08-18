@@ -63,13 +63,8 @@ final class ProfileViewController: UIViewController {
             self.updateAvatar()
         }
         
-//        if let profile = profileService.profile {
-//            updateProfileDetails(with: profile)
-//        }
         if let profile = profileService.profile {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in
-                self?.updateProfileDetails(with: profile)
-            }
+            updateProfileDetails(with: profile)
         }
         updateAvatar()
     }
