@@ -8,7 +8,7 @@
 import Foundation
 import OSLog
 
-protocol AuthHelperProtocol {
+public protocol AuthHelperProtocol {
     func authRequest() -> URLRequest?
     func code(from url: URL) -> String?
 }

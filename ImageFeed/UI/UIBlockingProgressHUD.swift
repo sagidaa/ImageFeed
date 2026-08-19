@@ -17,11 +17,13 @@ final class UIBlockingProgressHUD {
             .first { $0.isKeyWindow }
     }
     
+    @MainActor
     static func show() {
         window?.isUserInteractionEnabled = false
         ProgressHUD.animate()
     }
     
+    @MainActor
     static func dismiss() {
         window?.isUserInteractionEnabled = true
         ProgressHUD.dismiss()
