@@ -8,7 +8,6 @@
 import UIKit
 
 enum APIConstants {
-    static let unsplashAuthorizeURLString = "https://unsplash.com/oauth/authorize"
     static let unsplashOAuthTokenURLString = "https://unsplash.com/oauth/token"
     
     static let profileURL = "https://api.unsplash.com/me"
