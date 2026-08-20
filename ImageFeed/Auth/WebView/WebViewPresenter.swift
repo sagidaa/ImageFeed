@@ -16,12 +16,16 @@ public protocol WebViewPresenterProtocol: AnyObject {
 
 final class WebViewPresenter: WebViewPresenterProtocol {
     
+    // MARK: - Properties
+    
     weak var view: WebViewViewControllerProtocol?
     var authHelper: AuthHelperProtocol
     
     init(authHelper: AuthHelperProtocol) {
         self.authHelper = authHelper
     }
+    
+    // MARK: - Public Methods
     
     func viewDidLoad() {
         guard let request = authHelper.authRequest() else {
