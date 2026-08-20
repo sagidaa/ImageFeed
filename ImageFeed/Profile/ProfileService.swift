@@ -8,7 +8,11 @@
 import Foundation
 import OSLog
 
-final class ProfileService {
+protocol ProfileServiceProtocol: AnyObject {
+    var profile: Profile? { get }
+}
+
+final class ProfileService: ProfileServiceProtocol {
     
     // MARK: - Properties
     

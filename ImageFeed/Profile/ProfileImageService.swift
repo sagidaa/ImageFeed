@@ -8,7 +8,11 @@
 import Foundation
 import OSLog
 
-final class ProfileImageService {
+protocol ProfileImageServiceProtocol: AnyObject {
+    var avatarURL: String? { get }
+}
+
+final class ProfileImageService: ProfileImageServiceProtocol {
     
     // MARK: - Properties
 
