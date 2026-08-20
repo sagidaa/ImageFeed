@@ -39,6 +39,7 @@ final class TabBarController: UITabBarController {
             title: "",
             image: .tabProfileNotActive,
             selectedImage: .tabProfileActive)
+        profileViewController.tabBarItem.accessibilityIdentifier = "profileTab"
         
         self.viewControllers = [imagesListViewController, profileViewController]
     }

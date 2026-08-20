@@ -93,6 +93,8 @@ final class ImagesListCell: UITableViewCell {
     func setIsLiked(_ isLiked: Bool) {
         let image = UIImage(resource: isLiked ? .likeButtonOn : .likeButtonOff)
         likeButton.setImage(image, for: .normal)
+        
+        likeButton.accessibilityValue = isLiked ? "liked" : "not liked"
     }
     
     // MARK: - Private Methods
@@ -143,6 +145,8 @@ final class ImagesListCell: UITableViewCell {
         dateLabel.textColor = .ypWhite
         
         likeButton.addTarget(self, action: #selector(likeButtonClicked), for: .touchUpInside)
+        likeButton.accessibilityIdentifier = "likeButton"
+        likeButton.accessibilityLabel = "Like"
         
         [fullSizeImageView, imageSkeletonView, gradientView, dateLabel, likeButton].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false

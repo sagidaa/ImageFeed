@@ -159,6 +159,8 @@ final class ProfileViewController: UIViewController & ProfileViewControllerProto
         avatarSkeletonView.layer.cornerRadius = LayoutConstants.avatarSize / 2
         
         let image = UIImage(resource: .logoutButton)
+        logoutButton.accessibilityIdentifier = "logoutButton"
+        logoutButton.accessibilityLabel = "Выйти"
         logoutButton.setImage(image, for: .normal)
         logoutButton.tintColor = .ypRed
         logoutButton.addTarget(self, action: #selector(logoutButtonTapped), for: .touchUpInside)

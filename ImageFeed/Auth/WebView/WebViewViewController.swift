@@ -69,6 +69,7 @@ final class WebViewViewController: UIViewController & WebViewViewControllerProto
     private func setupViews() {
         view.backgroundColor = .ypWhite
         
+        webView.accessibilityIdentifier = "UnsplashWebView"
         webView.translatesAutoresizingMaskIntoConstraints = false
         webView.backgroundColor = .ypWhite
         

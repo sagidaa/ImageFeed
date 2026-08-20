@@ -49,6 +49,7 @@ final class AuthViewController: UIViewController {
         authLogoImageView.contentMode = .scaleAspectFit
         
         loginButton.setTitle("Войти", for: .normal)
+        loginButton.accessibilityIdentifier = "authButton"
         loginButton.setTitleColor(.ypBlack, for: .normal)
         loginButton.titleLabel?.font = .systemFont(ofSize: 17, weight: .bold)
         
