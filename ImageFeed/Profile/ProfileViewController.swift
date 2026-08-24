@@ -8,7 +8,16 @@
 import UIKit
 import Kingfisher
 
-final class ProfileViewController: UIViewController {
+protocol ProfileViewControllerProtocol: AnyObject {
+    var presenter: ProfilePresenterProtocol? { get set }
+    
+    func updateProfileDetails(with profile: Profile)
+    func updateAvatar(with url: URL)
+    func showLogoutAlert()
+    func switchToSplashViewController()
+}
+
+final class ProfileViewController: UIViewController & ProfileViewControllerProtocol {
     
     // MARK: - Constants
     
@@ -22,10 +31,15 @@ final class ProfileViewController: UIViewController {
         static let spacing: CGFloat = 8
         static let buttonSize: CGFloat = 44
         
-        static let skeletonCornerRadius: CGFloat = 9
+        static let skeletonHeight: CGFloat = 18
+        static let nameSkeletonWidth: CGFloat = 223
+        static let loginSkeletonWidth: CGFloat = 89
+        static let descriptionSkeletonWidth: CGFloat = 67
     }
     
     // MARK: - Properties
+    
+    var presenter: ProfilePresenterProtocol?
     
     private let avatarImageView = UIImageView()
     private let logoutButton = UIButton()
@@ -38,10 +52,6 @@ final class ProfileViewController: UIViewController {
     private let loginSkeletonView = GradientSkeletonView()
     private let descriptionSkeletonView = GradientSkeletonView()
     
-    private let profileService = ProfileService.shared
-    private let profileImageService = ProfileImageService.shared
-    private var profileImageServiceObserver: NSObjectProtocol?
-    
     // MARK: - Lifecycle
     
     override func viewDidLoad() {
@@ -51,19 +61,75 @@ final class ProfileViewController: UIViewController {
         setupConstraints()
         startSkeletons()
         
-        profileImageServiceObserver = NotificationCenter.default.addObserver(
-            forName: ProfileImageService.didChangeNotification,
-            object: nil,
-            queue: .main
-        ) { [weak self] _ in
+        presenter?.viewDidLoad()
+    }
+    
+    // MARK: - Public Methods
+    
+    func configure(_ presenter: ProfilePresenterProtocol) {
+        self.presenter = presenter
+        presenter.view = self
+    }
+    
+    func updateAvatar(with url: URL) {
+        avatarSkeletonView.isHidden = false
+        avatarSkeletonView.startAnimating()
+        
+        avatarImageView.kf.indicatorType = .activity
+        avatarImageView.kf.setImage(with: url, placeholder: UIImage(resource: .noProfileImageStub)) { [weak self] _ in
             guard let self else { return }
-            self.updateAvatar()
+            
+            avatarSkeletonView.stopAnimating()
+            avatarSkeletonView.isHidden = true
+        }
+    }
+    
+    func updateProfileDetails(with profile: Profile) {
+        nameLabel.text = profile.name.isEmpty
+        ? "Имя не указано"
+        : profile.name
+        loginNameLabel.text = profile.loginName.isEmpty
+        ? "@неизвестный_пользователь"
+        : profile.loginName
+        descriptionLabel.text = (profile.bio?.isEmpty ?? true)
+        ? "Профиль не заполнен"
+        : profile.bio
+        
+        stopSkeletons()
+    }
+    
+    func switchToSplashViewController() {
+        guard let window = UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene })
+            .flatMap({ $0.windows })
+            .first(where: { $0.isKeyWindow }) else {
+            print("Failed to get key window")
+            return
         }
         
-        if let profile = profileService.profile {
-            updateProfileDetails(with: profile)
+        window.rootViewController = SplashViewController()
+    }
+    
+    func showLogoutAlert() {
+        let alertController = UIAlertController(
+            title: "Пока, пока!",
+            message: "Уверены, что хотите выйти?",
+            preferredStyle: .alert
+        )
+        
+        let yesAction = UIAlertAction(title: "Да", style: .default) { [weak self] _ in
+            guard let self else { return }
+            presenter?.didConfirmLogout()
         }
-        updateAvatar()
+        
+        let noAction = UIAlertAction(title: "Нет", style: .default)
+        
+        alertController.addAction(yesAction)
+        alertController.addAction(noAction)
+        
+        alertController.preferredAction = noAction
+        
+        present(alertController, animated: true)
     }
     
     // MARK: - Private Methods
@@ -82,74 +148,6 @@ final class ProfileViewController: UIViewController {
         }
     }
     
-    private func updateAvatar() {
-        guard
-            let profileImageURL = profileImageService.avatarURL,
-            let url = URL(string: profileImageURL)
-        else { return }
-        
-        avatarSkeletonView.isHidden = false
-        avatarSkeletonView.startAnimating()
-        
-        avatarImageView.kf.indicatorType = .activity
-        avatarImageView.kf.setImage(with: url, placeholder: UIImage(resource: .noProfileImageStub)) { [weak self] _ in
-            guard let self else { return }
-            
-            avatarSkeletonView.stopAnimating()
-            avatarSkeletonView.isHidden = true
-        }
-    }
-    
-    private func updateProfileDetails(with profile: Profile) {
-        nameLabel.text = profile.name.isEmpty
-        ? "Имя не указано"
-        : profile.name
-        loginNameLabel.text = profile.loginName.isEmpty
-        ? "@неизвестный_пользователь"
-        : profile.loginName
-        descriptionLabel.text = (profile.bio?.isEmpty ?? true)
-        ? "Профиль не заполнен"
-        : profile.bio
-        
-        stopSkeletons()
-    }
-    
-    private func switchToSplashViewController() {
-        guard let window = UIApplication.shared.connectedScenes
-            .compactMap({ $0 as? UIWindowScene })
-            .flatMap({ $0.windows })
-            .first(where: { $0.isKeyWindow }) else {
-            print("Failed to get key window")
-            return
-        }
-        
-        window.rootViewController = SplashViewController()
-    }
-    
-    private func showLogoutAlert() {
-        let alertController = UIAlertController(
-            title: "Пока, пока!",
-            message: "Уверены, что хотите выйти?",
-            preferredStyle: .alert
-        )
-        
-        let yesAction = UIAlertAction(title: "Да", style: .default) { [weak self] _ in
-            guard let self else { return }
-            
-            ProfileLogoutService.shared.logout()
-            switchToSplashViewController()
-        }
-        
-        let noAction = UIAlertAction(title: "Нет", style: .default)
-        
-        alertController.addAction(yesAction)
-        alertController.addAction(noAction)
-        
-        alertController.preferredAction = noAction
-        
-        present(alertController, animated: true)
-    }
-    
     private func setupViews() {
         view.backgroundColor = .ypBlack
         
@@ -161,6 +159,8 @@ final class ProfileViewController: UIViewController {
         avatarSkeletonView.layer.cornerRadius = LayoutConstants.avatarSize / 2
         
         let image = UIImage(resource: .logoutButton)
+        logoutButton.accessibilityIdentifier = "logoutButton"
+        logoutButton.accessibilityLabel = "Выйти"
         logoutButton.setImage(image, for: .normal)
         logoutButton.tintColor = .ypRed
         logoutButton.addTarget(self, action: #selector(logoutButtonTapped), for: .touchUpInside)
@@ -176,7 +176,8 @@ final class ProfileViewController: UIViewController {
         descriptionLabel.numberOfLines = 0
         
         [nameSkeletonView, loginSkeletonView, descriptionSkeletonView].forEach {
-            $0.layer.cornerRadius = LayoutConstants.skeletonCornerRadius
+            $0.layer.cornerRadius = LayoutConstants.skeletonHeight / 2
+            $0.clipsToBounds = true
         }
         
         [avatarImageView, logoutButton, nameLabel, loginNameLabel, descriptionLabel,
@@ -205,37 +206,36 @@ final class ProfileViewController: UIViewController {
             
             nameLabel.topAnchor.constraint(equalTo: avatarImageView.bottomAnchor, constant: LayoutConstants.spacing),
             nameLabel.leadingAnchor.constraint(equalTo: avatarImageView.leadingAnchor),
-            nameLabel.trailingAnchor.constraint(equalTo: logoutButton.trailingAnchor),
-            
-            nameSkeletonView.topAnchor.constraint(equalTo: nameLabel.topAnchor),
-            nameSkeletonView.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
-            nameSkeletonView.trailingAnchor.constraint(lessThanOrEqualTo: nameLabel.trailingAnchor),
-            nameSkeletonView.heightAnchor.constraint(equalToConstant: LayoutConstants.nameFontSize + 4),
-            nameSkeletonView.widthAnchor.constraint(equalToConstant: 200),
+            nameLabel.trailingAnchor.constraint(lessThanOrEqualTo: logoutButton.leadingAnchor, constant: -LayoutConstants.spacing),
             
             loginNameLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: LayoutConstants.spacing),
-            loginNameLabel.leadingAnchor.constraint(equalTo: avatarImageView.leadingAnchor),
-            loginNameLabel.trailingAnchor.constraint(equalTo: logoutButton.trailingAnchor),
-            
-            loginSkeletonView.topAnchor.constraint(equalTo: loginNameLabel.topAnchor),
-            loginSkeletonView.leadingAnchor.constraint(equalTo: loginNameLabel.leadingAnchor),
-            loginSkeletonView.heightAnchor.constraint(equalToConstant: LayoutConstants.secondaryFontSize + 4),
-            loginSkeletonView.widthAnchor.constraint(equalToConstant: 100),
+            loginNameLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
+            loginNameLabel.trailingAnchor.constraint(equalTo: nameLabel.trailingAnchor),
             
             descriptionLabel.topAnchor.constraint(equalTo: loginNameLabel.bottomAnchor, constant: LayoutConstants.spacing),
-            descriptionLabel.leadingAnchor.constraint(equalTo: avatarImageView.leadingAnchor),
-            descriptionLabel.trailingAnchor.constraint(equalTo: logoutButton.trailingAnchor),
+            descriptionLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
+            descriptionLabel.trailingAnchor.constraint(equalTo: nameLabel.trailingAnchor),
             
-            descriptionSkeletonView.topAnchor.constraint(equalTo: descriptionLabel.topAnchor),
-            descriptionSkeletonView.leadingAnchor.constraint(equalTo: descriptionLabel.leadingAnchor),
-            descriptionSkeletonView.heightAnchor.constraint(equalToConstant: LayoutConstants.secondaryFontSize + 4),
-            descriptionSkeletonView.widthAnchor.constraint(equalToConstant: 150)
+            nameSkeletonView.topAnchor.constraint(equalTo: avatarSkeletonView.bottomAnchor, constant: LayoutConstants.spacing),
+            nameSkeletonView.leadingAnchor.constraint(equalTo: avatarSkeletonView.leadingAnchor),
+            nameSkeletonView.widthAnchor.constraint(equalToConstant: LayoutConstants.nameSkeletonWidth),
+            nameSkeletonView.heightAnchor.constraint(equalToConstant: LayoutConstants.skeletonHeight),
+            
+            loginSkeletonView.topAnchor.constraint(equalTo: nameSkeletonView.bottomAnchor, constant: LayoutConstants.spacing),
+            loginSkeletonView.leadingAnchor.constraint(equalTo: nameSkeletonView.leadingAnchor),
+            loginSkeletonView.widthAnchor.constraint(equalToConstant: LayoutConstants.loginSkeletonWidth),
+            loginSkeletonView.heightAnchor.constraint(equalToConstant: LayoutConstants.skeletonHeight),
+            
+            descriptionSkeletonView.topAnchor.constraint(equalTo: loginSkeletonView.bottomAnchor, constant: LayoutConstants.spacing),
+            descriptionSkeletonView.leadingAnchor.constraint(equalTo: nameSkeletonView.leadingAnchor),
+            descriptionSkeletonView.widthAnchor.constraint(equalToConstant: LayoutConstants.descriptionSkeletonWidth),
+            descriptionSkeletonView.heightAnchor.constraint(equalToConstant: LayoutConstants.skeletonHeight)
         ])
     }
     
     // MARK: - Actions
     
     @objc private func logoutButtonTapped() {
-        showLogoutAlert()
+        presenter?.didTapLogoutButton()
     }
 }

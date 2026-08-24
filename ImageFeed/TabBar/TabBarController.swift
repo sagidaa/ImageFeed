@@ -23,16 +23,23 @@ final class TabBarController: UITabBarController {
     private func setupViewControllers() {
         
         let imagesListViewController = ImagesListViewController()
+        let imagesListPresenter = ImagesListPresenter()
+        
+        imagesListViewController.configure(imagesListPresenter)
         imagesListViewController.tabBarItem = UITabBarItem(
             title: "",
             image: .tabEditorialNotActive,
             selectedImage: .tabEditorialActive)
         
         let profileViewController = ProfileViewController()
+        let profilePresenter = ProfilePresenter()
+        
+        profileViewController.configure(profilePresenter)
         profileViewController.tabBarItem = UITabBarItem(
             title: "",
             image: .tabProfileNotActive,
             selectedImage: .tabProfileActive)
+        profileViewController.tabBarItem.accessibilityIdentifier = "profileTab"
         
         self.viewControllers = [imagesListViewController, profileViewController]
     }

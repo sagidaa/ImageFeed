@@ -49,6 +49,7 @@ final class AuthViewController: UIViewController {
         authLogoImageView.contentMode = .scaleAspectFit
         
         loginButton.setTitle("Войти", for: .normal)
+        loginButton.accessibilityIdentifier = "authButton"
         loginButton.setTitleColor(.ypBlack, for: .normal)
         loginButton.titleLabel?.font = .systemFont(ofSize: 17, weight: .bold)
         
@@ -101,7 +102,12 @@ final class AuthViewController: UIViewController {
     // MARK: - Actions
     
     @objc private func didTapLoginButton() {
+        let authHelper = AuthHelper()
         let webViewViewController = WebViewViewController()
+        let webViewPresenter = WebViewPresenter(authHelper: authHelper)
+        
+        webViewViewController.presenter = webViewPresenter
+        webViewPresenter.view = webViewViewController
         webViewViewController.delegate = self
         
         navigationController?.pushViewController(webViewViewController, animated: true)

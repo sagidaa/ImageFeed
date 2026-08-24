@@ -143,6 +143,8 @@ final class ImagesListCell: UITableViewCell {
         dateLabel.textColor = .ypWhite
         
         likeButton.addTarget(self, action: #selector(likeButtonClicked), for: .touchUpInside)
+        likeButton.accessibilityIdentifier = "likeButton"
+        likeButton.accessibilityLabel = "Like"
         
         [fullSizeImageView, imageSkeletonView, gradientView, dateLabel, likeButton].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false

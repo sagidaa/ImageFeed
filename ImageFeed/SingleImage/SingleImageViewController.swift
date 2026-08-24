@@ -117,6 +117,7 @@ final class SingleImageViewController: UIViewController {
         imageView.contentMode = .scaleAspectFit
         
         let backButtonImage = UIImage(resource: .navBarBackButton)
+        backButton.accessibilityIdentifier = "navBackButton"
         backButton.setImage(backButtonImage, for: .normal)
         backButton.tintColor = .ypWhite
         backButton.addTarget(self, action: #selector(didTapBackButton), for: .touchUpInside)

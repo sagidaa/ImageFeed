@@ -28,7 +28,7 @@ extension URLSession {
                     fulfillCompletionOnTheMainThread(.success(data))
                 } else {
                     let error = NetworkError.httpStatusCode(statusCode)
-                    let responseBody = String(data: data, encoding: .utf8) ?? ""
+                    _ = String(data: data, encoding: .utf8) ?? ""
                     
                     Logger.networking.error("Request failed with HTTP status code \(statusCode)")
                     
@@ -68,7 +68,7 @@ extension URLSession {
                     let decodedObject = try decoder.decode(T.self, from: data)
                     completion(.success(decodedObject))
                 } catch {
-                    let responseBody = String(data: data, encoding: .utf8) ?? ""
+                    _ = String(data: data, encoding: .utf8) ?? ""
 
                     Logger.networking.error("Failed to decode server response: \(error.localizedDescription)")
                     
