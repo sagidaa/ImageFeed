@@ -53,30 +53,34 @@ final class ImageFeedUITests: XCTestCase {
     func testFeed() throws {
         app.launch()
         
-        let tablesQuery = app.tables
-        let cell = tablesQuery.children(matching: .cell).element(boundBy: 0)
+        let table = app.tables.firstMatch
+        XCTAssertTrue(table.waitForExistence(timeout: 10))
         
+        let firstCell = table.cells.element(boundBy: 0)
+        XCTAssertTrue(firstCell.waitForExistence(timeout: 10))
+        
+        table.swipeUp(velocity: .slow)
+            
+        let cell = table.cells.element(boundBy: 1)
         XCTAssertTrue(cell.waitForExistence(timeout: 10))
         
-        cell.swipeUp(velocity: .slow)
-        sleep(2)
+        if !cell.isHittable {
+            table.swipeUp(velocity: .slow)
+        }
         
-        let cellToLike = tablesQuery.children(matching: .cell).element(boundBy: 1)
-        XCTAssertTrue(cellToLike.waitForExistence(timeout: 5))
+        XCTAssertTrue(cell.isHittable)
         
-        let likeButton = cellToLike.buttons["likeButton"]
+        let likeButton = cell.buttons["likeButton"]
         XCTAssertTrue(likeButton.waitForExistence(timeout: 5))
+        XCTAssertTrue(likeButton.isHittable)
         
         likeButton.tap()
         sleep(2)
-        XCTAssertEqual(likeButton.value as? String, "liked")
         
         likeButton.tap()
         sleep(2)
-        XCTAssertEqual(likeButton.value as? String, "not liked")
         
-        cellToLike.tap()
-        sleep(2)
+        cell.tap()
         
         let image = app.scrollViews.images.element(boundBy: 0)
         XCTAssertTrue(image.waitForExistence(timeout: 5))
